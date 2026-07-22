@@ -56,22 +56,23 @@ curl -X POST https://sadi.digifarma.com.br/api/Ping \
   -F 'json={"cnpj":"02695980000110","params":null}'
 ```
 
-## Autenticação adicional (opcional) — senha por CNPJ
+## Segundo fator (opcional) — senha por CNPJ
 
-Se sua integradora quiser uma **segunda camada** de autenticação vinculada ao CNPJ da loja atendida:
+Se sua integradora quiser uma camada adicional de autenticação vinculada ao CNPJ da loja atendida:
 
-1. Chame [`SetSenha`](endpoints/set-senha.md) uma vez para definir uma senha alfanumérica associada ao CNPJ
-2. Nas chamadas subsequentes, envie essa senha no header:
+1. Chame [`SetSenha`](endpoints/set-senha.md) **uma vez** para definir uma senha alfanumérica para o CNPJ.
+2. A partir daí, **todas as chamadas subsequentes a esse CNPJ passam a exigir** o header:
 
-| Header | Obrigatório | Descrição |
-| --- | --- | --- |
-| `x-digifarma-senha` | Não | Senha alfanumérica definida via [`SetSenha`](endpoints/set-senha.md) para o CNPJ atendido |
+| Header | Descrição |
+| --- | --- |
+| `x-digifarma-senha` | Senha definida via [`SetSenha`](endpoints/set-senha.md) para o CNPJ atendido |
 
-- Se o header **for enviado e bater** com a senha definida → requisição autenticada.
-- Se **for enviado e não bater** → requisição rejeitada.
-- Se **não for enviado** → autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) já basta.
+Regras:
 
-Essa camada é útil pra integradoras que queiram um segundo fator vinculado ao CNPJ atendido.
+- **Nunca chamou `SetSenha` para um CNPJ** → nada muda. Só `x-digifarma-user` + `x-digifarma-token` bastam.
+- **Chamou `SetSenha`** → a partir daí, chamadas àquele CNPJ **sem** o header `x-digifarma-senha` (ou com valor incorreto) são rejeitadas.
+
+É um comportamento *stateful* — uma vez ativado, é obrigatório manter o envio. Use apenas se realmente quiser esse segundo fator.
 
 ## Erros comuns
 

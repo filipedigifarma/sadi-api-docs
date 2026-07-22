@@ -466,15 +466,16 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
 
     "SetSenha": {
         "descricao": (
-            "Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, usada como "
-            "**camada opcional de autenticação** pela integradora.\n\n"
-            "Depois de definida, a integradora pode enviar essa senha no header "
-            "`x-digifarma-senha` nas demais chamadas da API. Se a senha corresponder, a "
-            "requisição é autenticada; se não corresponder, é rejeitada. Se o header não "
-            "for enviado, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) "
-            "já basta.\n\n"
-            "Essa camada é **opcional** — serve pra integradoras que queiram um segundo "
-            "fator vinculado ao CNPJ atendido.\n\n"
+            "Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, funcionando "
+            "como camada adicional de autenticação da integradora.\n\n"
+            "**⚠ Comportamento importante:** a partir do momento em que uma senha é "
+            "definida para um CNPJ, **todas as chamadas subsequentes da API a esse CNPJ "
+            "passam a exigir o header `x-digifarma-senha`** com a senha correspondente. "
+            "Requisições sem o header, ou com valor incorreto, são rejeitadas.\n\n"
+            "Usar este endpoint é **opcional** — se você nunca chamar `SetSenha` para um "
+            "CNPJ, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) "
+            "continua bastando. Chame apenas se quiser um segundo fator vinculado ao "
+            "CNPJ atendido.\n\n"
             "**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas)."
         ),
         "body_tipo": "form-data-direto",
