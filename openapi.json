@@ -130,10 +130,20 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": null\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n"
                   }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": null
                 }
               }
             }
@@ -208,9 +218,32 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `CLIENTE` | array (1 objeto) | Dados do cliente a inserir/atualizar |\n\n**Campos de `CLIENTE`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `CLIENTE_ID` | string | Sim | `\"0\"` = novo cliente; ID existente = atualiza |\n| `CLIENTE` | string | Sim | Nome completo do cliente (maiúsculas) |\n| `CLI_CPF` | string | Sim | CPF sem formatação (11 dígitos) |\n| `CLI_RG` | string | Não | RG do cliente |\n| `CLI_ENDERECO` | string | Não | Logradouro |\n| `CLI_NUMERO` | string | Não | Número do endereço |\n| `CLI_BAIRRO` | string | Não | Bairro |\n| `CLI_CIDADE` | string | Não | Cidade |\n| `CLI_CEP` | string | Não | CEP sem formatação (8 dígitos) |\n| `CLI_UF` | string | Não | Estado (sigla de 2 letras) |\n| `CLI_TELEFONE` | string | Não | Telefone fixo |\n| `CLI_CELULAR` | string | Não | Celular |\n| `CLI_EMAIL` | string | Não | E-mail |\n| `CLI_SEXO` | string | Não | `\"M\"` = Masculino, `\"F\"` = Feminino |\n| `CLI_ESTADO_CIVIL` | string | Não | `\"S\"`=solteiro, `\"C\"`=casado, `\"D\"`=divorciado, `\"V\"`=viúvo |\n| `CLI_NASCIMENTO` | string | Não | Data de nascimento `yyyy-mm-dd` |\n| `CLI_CONJUGE` | string | Não | Nome do cônjuge |\n| `CLI_PAI` | string | Não | Nome do pai |\n| `CLI_MAE` | string | Não | Nome da mãe |\n| `CADASTRO_VENDEDOR_ID` | string | Não | ID do vendedor que fez o cadastro |\n| `CLI_SALARIO` | string | Não | Salário do cliente |\n| `CLI_LIMITE` | string | Não | Limite de crediário |\n| `CREDIARIO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — habilita crediário |\n| `CLI_BLOQUEADO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — bloqueia cliente |\n| `ORIGEM_CADASTRO_ID` | string | Não | Identificador da origem do cadastro (ex: nome do sistema) |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"CLIENTE\": [\n      {\n        \"CLIENTE_ID\": \"0\",\n        \"CLIENTE\": \"JOÃO DA SILVA\",\n        \"CLI_CPF\": \"12345678901\",\n        \"CLI_NASCIMENTO\": \"1985-05-20\",\n        \"CLI_CELULAR\": \"31998765432\",\n        \"CREDIARIO\": \"FALSE\",\n        \"CLI_BLOQUEADO\": \"FALSE\",\n        \"ORIGEM_CADASTRO_ID\": \"MEUAPP\"\n      }\n    ]\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `CLIENTE` | array (1 objeto) | Dados do cliente a inserir/atualizar |\n\n**Campos de `CLIENTE`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `CLIENTE_ID` | string | Sim | `\"0\"` = novo cliente; ID existente = atualiza |\n| `CLIENTE` | string | Sim | Nome completo do cliente (maiúsculas) |\n| `CLI_CPF` | string | Sim | CPF sem formatação (11 dígitos) |\n| `CLI_RG` | string | Não | RG do cliente |\n| `CLI_ENDERECO` | string | Não | Logradouro |\n| `CLI_NUMERO` | string | Não | Número do endereço |\n| `CLI_BAIRRO` | string | Não | Bairro |\n| `CLI_CIDADE` | string | Não | Cidade |\n| `CLI_CEP` | string | Não | CEP sem formatação (8 dígitos) |\n| `CLI_UF` | string | Não | Estado (sigla de 2 letras) |\n| `CLI_TELEFONE` | string | Não | Telefone fixo |\n| `CLI_CELULAR` | string | Não | Celular |\n| `CLI_EMAIL` | string | Não | E-mail |\n| `CLI_SEXO` | string | Não | `\"M\"` = Masculino, `\"F\"` = Feminino |\n| `CLI_ESTADO_CIVIL` | string | Não | `\"S\"`=solteiro, `\"C\"`=casado, `\"D\"`=divorciado, `\"V\"`=viúvo |\n| `CLI_NASCIMENTO` | string | Não | Data de nascimento `yyyy-mm-dd` |\n| `CLI_CONJUGE` | string | Não | Nome do cônjuge |\n| `CLI_PAI` | string | Não | Nome do pai |\n| `CLI_MAE` | string | Não | Nome da mãe |\n| `CADASTRO_VENDEDOR_ID` | string | Não | ID do vendedor que fez o cadastro |\n| `CLI_SALARIO` | string | Não | Salário do cliente |\n| `CLI_LIMITE` | string | Não | Limite de crediário |\n| `CREDIARIO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — habilita crediário |\n| `CLI_BLOQUEADO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — bloqueia cliente |\n| `ORIGEM_CADASTRO_ID` | string | Não | Identificador da origem do cadastro (ex: nome do sistema) |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "CLIENTE": [
+                      {
+                        "CLIENTE_ID": "0",
+                        "CLIENTE": "JOÃO DA SILVA",
+                        "CLI_CPF": "12345678901",
+                        "CLI_NASCIMENTO": "1985-05-20",
+                        "CLI_CELULAR": "31998765432",
+                        "CREDIARIO": "FALSE",
+                        "CLI_BLOQUEADO": "FALSE",
+                        "ORIGEM_CADASTRO_ID": "MEUAPP"
+                      }
+                    ]
                   }
                 }
               }
@@ -275,9 +308,24 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"NOME\"`, `\"CPF\"` ou `\"TELEFONE\"` |\n| `parametro` | string | Sim | Valor a ser pesquisado |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"CPF\",\n    \"parametro\": \"12345678909\",\n    \"pagina\": 1,\n    \"tamanho_pagina\": 20\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"NOME\"`, `\"CPF\"` ou `\"TELEFONE\"` |\n| `parametro` | string | Sim | Valor a ser pesquisado |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "tipo_consulta": "CPF",
+                    "parametro": "12345678909",
+                    "pagina": 1,
+                    "tamanho_pagina": 20
                   }
                 }
               }
@@ -351,9 +399,29 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `integracao` | string | Não | Filtra produtos vinculados a uma integração (ex: `\"DIGIFARMA\"`) |\n| `apenas_integracao` | boolean | Não | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"EAN\",\n    \"parametro\": \"7896422507967\",\n    \"pagina\": 1,\n    \"tamanho_pagina\": 10,\n    \"saldo_positivo\": false,\n    \"ordenar_por\": \"PRODUTO\",\n    \"ordem\": \"ASC\",\n    \"integracao\": \"\",\n    \"apenas_integracao\": false\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `integracao` | string | Não | Filtra produtos vinculados a uma integração (ex: `\"DIGIFARMA\"`) |\n| `apenas_integracao` | boolean | Não | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "tipo_consulta": "EAN",
+                    "parametro": "7896422507967",
+                    "pagina": 1,
+                    "tamanho_pagina": 10,
+                    "saldo_positivo": false,
+                    "ordenar_por": "PRODUTO",
+                    "ordem": "ASC",
+                    "integracao": "",
+                    "apenas_integracao": false
                   }
                 }
               }
@@ -430,9 +498,73 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da venda — totais, cliente e forma de pagamento. |\n| `venda_item` | array | Itens da venda — um objeto por produto. |\n| `pagamento` | array | Formas de pagamento utilizadas. |\n| `delivery` | object | Endereço de entrega. Pode ser omitido se não houver delivery. |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da venda |\n| `venda_recebido` | number | Sim | Valor recebido do cliente |\n| `cartao_atd` | string | Não | Número do cartão de atendimento |\n| `pedido` | string | Não | Número do pedido externo |\n| `v_id` | string | Sim | ID do vendedor ou origem |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"IFOOD\"`, `\"POSTMAN\"`) |\n| `cliente_id` | string | Não | ID do cliente (`\"0\"` = venda avulsa) |\n| `delivery_id` | string | Não | ID do endereço de delivery |\n| `cliente` | string | Não | Nome do cliente |\n| `comprador` | string | Não | Nome do comprador |\n| `fpagto` | string | Sim | Código da forma de pagamento (ex: `\"0\"` = dinheiro) |\n| `cpf_cliente` | string | Não | CPF do cliente (sem formatação) |\n| `token` | string | Não | Token único do pedido (idempotência) |\n| `frete` | number | Não | Valor do frete |\n| `troco` | number | Não | Valor do troco |\n| `obs` | string | Não | Observações do pedido |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN/código de barras do produto |\n| `qtde` | number | Sim | Quantidade |\n| `prt` | number | Sim | Preço de tabela |\n| `prv` | number | Sim | Preço de venda |\n| `vv` | number | Sim | Valor total do item |\n| `desc` | number | Não | Valor de desconto |\n| `c_tr` | string | Não | Código de tributação (ex: `\"F\"`) |\n| `v_id` | string | Não | ID do vendedor |\n| `padrao_comissao` | number | Não | Percentual de comissão |\n\n**Campos de `pagamento`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma (ex: `\"dinheiro\"`, `\"cartao\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa\"`) |\n\n**Campos de `delivery`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `nom` | string | Sim | Nome do destinatário |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (8 dígitos, sem formatação) |\n| `uf` | string | Sim | Estado (sigla de 2 letras) |\n| `com` | string | Não | Complemento |\n| `ref` | string | Não | Ponto de referência |\n| `tel` | string | Não | Telefone fixo |\n| `cel` | string | Não | Celular |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda\": {\n      \"venda_total\": 77.59,\n      \"venda_recebido\": 77.59,\n      \"cartao_atd\": \"1833197\",\n      \"pedido\": \"\",\n      \"v_id\": \"1\",\n      \"origem_venda\": \"POSTMAN\",\n      \"cliente_id\": \"0\",\n      \"delivery_id\": \"0\",\n      \"cliente\": \"Cliente Exemplo\",\n      \"comprador\": \"Cliente Exemplo\",\n      \"fpagto\": \"0\",\n      \"cpf_cliente\": \"12345678909\",\n      \"token\": \"identificador-unico-do-pedido\",\n      \"frete\": 0,\n      \"troco\": 0,\n      \"obs\": \"\"\n    },\n    \"venda_item\": [\n      {\n        \"p_id\": \"7891800662122\",\n        \"qtde\": 2,\n        \"prt\": 33.8,\n        \"prv\": 33.8,\n        \"vv\": 33.8,\n        \"desc\": 0,\n        \"c_tr\": \"F\",\n        \"v_id\": \"1\",\n        \"padrao_comissao\": 0\n      }\n    ],\n    \"pagamento\": [\n      {\n        \"f\": \"dinheiro\",\n        \"a\": \"77.59\",\n        \"n\": \"\",\n        \"i\": \"1\",\n        \"b\": \"\"\n      }\n    ],\n    \"delivery\": {\n      \"tel\": \"\",\n      \"cel\": \"\",\n      \"nom\": \"Cliente Exemplo\",\n      \"end\": \"Rua Exemplo\",\n      \"num\": \"100\",\n      \"com\": \"Casa\",\n      \"ref\": \"\",\n      \"bai\": \"Centro\",\n      \"cid\": \"Belo Horizonte\",\n      \"cep\": \"30000000\",\n      \"uf\": \"MG\"\n    }\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da venda — totais, cliente e forma de pagamento. |\n| `venda_item` | array | Itens da venda — um objeto por produto. |\n| `pagamento` | array | Formas de pagamento utilizadas. |\n| `delivery` | object | Endereço de entrega. Pode ser omitido se não houver delivery. |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da venda |\n| `venda_recebido` | number | Sim | Valor recebido do cliente |\n| `cartao_atd` | string | Não | Número do cartão de atendimento |\n| `pedido` | string | Não | Número do pedido externo |\n| `v_id` | string | Sim | ID do vendedor ou origem |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"IFOOD\"`, `\"POSTMAN\"`) |\n| `cliente_id` | string | Não | ID do cliente (`\"0\"` = venda avulsa) |\n| `delivery_id` | string | Não | ID do endereço de delivery |\n| `cliente` | string | Não | Nome do cliente |\n| `comprador` | string | Não | Nome do comprador |\n| `fpagto` | string | Sim | Código da forma de pagamento (ex: `\"0\"` = dinheiro) |\n| `cpf_cliente` | string | Não | CPF do cliente (sem formatação) |\n| `token` | string | Não | Token único do pedido (idempotência) |\n| `frete` | number | Não | Valor do frete |\n| `troco` | number | Não | Valor do troco |\n| `obs` | string | Não | Observações do pedido |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN/código de barras do produto |\n| `qtde` | number | Sim | Quantidade |\n| `prt` | number | Sim | Preço de tabela |\n| `prv` | number | Sim | Preço de venda |\n| `vv` | number | Sim | Valor total do item |\n| `desc` | number | Não | Valor de desconto |\n| `c_tr` | string | Não | Código de tributação (ex: `\"F\"`) |\n| `v_id` | string | Não | ID do vendedor |\n| `padrao_comissao` | number | Não | Percentual de comissão |\n\n**Campos de `pagamento`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma (ex: `\"dinheiro\"`, `\"cartao\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa\"`) |\n\n**Campos de `delivery`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `nom` | string | Sim | Nome do destinatário |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (8 dígitos, sem formatação) |\n| `uf` | string | Sim | Estado (sigla de 2 letras) |\n| `com` | string | Não | Complemento |\n| `ref` | string | Não | Ponto de referência |\n| `tel` | string | Não | Telefone fixo |\n| `cel` | string | Não | Celular |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "venda": {
+                      "venda_total": 77.59,
+                      "venda_recebido": 77.59,
+                      "cartao_atd": "1833197",
+                      "pedido": "",
+                      "v_id": "1",
+                      "origem_venda": "POSTMAN",
+                      "cliente_id": "0",
+                      "delivery_id": "0",
+                      "cliente": "Cliente Exemplo",
+                      "comprador": "Cliente Exemplo",
+                      "fpagto": "0",
+                      "cpf_cliente": "12345678909",
+                      "token": "identificador-unico-do-pedido",
+                      "frete": 0,
+                      "troco": 0,
+                      "obs": ""
+                    },
+                    "venda_item": [
+                      {
+                        "p_id": "7891800662122",
+                        "qtde": 2,
+                        "prt": 33.8,
+                        "prv": 33.8,
+                        "vv": 33.8,
+                        "desc": 0,
+                        "c_tr": "F",
+                        "v_id": "1",
+                        "padrao_comissao": 0
+                      }
+                    ],
+                    "pagamento": [
+                      {
+                        "f": "dinheiro",
+                        "a": "77.59",
+                        "n": "",
+                        "i": "1",
+                        "b": ""
+                      }
+                    ],
+                    "delivery": {
+                      "tel": "",
+                      "cel": "",
+                      "nom": "Cliente Exemplo",
+                      "end": "Rua Exemplo",
+                      "num": "100",
+                      "com": "Casa",
+                      "ref": "",
+                      "bai": "Centro",
+                      "cid": "Belo Horizonte",
+                      "cep": "30000000",
+                      "uf": "MG"
+                    }
                   }
                 }
               }
@@ -498,9 +630,24 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"DATA\"`, `\"CODIGO\"` ou `\"ALTERACAO\"` |\n| `data_inicio` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `data_fim` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `venda_id` | string | Condicional | ID da venda. Obrigatório se `tipo_consulta = \"CODIGO\"` |\n| `data_hora_alteracao` | string | Condicional | Formato `yyyy-mm-dd hh:nn:ss`. Obrigatório se `tipo_consulta = \"ALTERACAO\"` |\n| `origem_venda` | string | Não | Filtra por origem (ex: `\"IFOOD\"`). Opcional em qualquer modo |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"DATA\",\n    \"data_inicio\": \"2025-10-01\",\n    \"data_fim\": \"2025-10-09\",\n    \"origem_venda\": \"\"\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"DATA\"`, `\"CODIGO\"` ou `\"ALTERACAO\"` |\n| `data_inicio` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `data_fim` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `venda_id` | string | Condicional | ID da venda. Obrigatório se `tipo_consulta = \"CODIGO\"` |\n| `data_hora_alteracao` | string | Condicional | Formato `yyyy-mm-dd hh:nn:ss`. Obrigatório se `tipo_consulta = \"ALTERACAO\"` |\n| `origem_venda` | string | Não | Filtra por origem (ex: `\"IFOOD\"`). Opcional em qualquer modo |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "tipo_consulta": "DATA",
+                    "data_inicio": "2025-10-01",
+                    "data_fim": "2025-10-09",
+                    "origem_venda": ""
                   }
                 }
               }
@@ -580,9 +727,21 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_id` | integer | Sim | ID interno da venda |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda_id\": 12457\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_id` | integer | Sim | ID interno da venda |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "venda_id": 12457
                   }
                 }
               }
@@ -646,10 +805,20 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": null\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n"
                   }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": null
                 }
               }
             }
@@ -776,10 +945,19 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n",
-                    "example": "{\n  \"cnpj\": \"02695980000110\"\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n"
                   }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110"
                 }
               }
             }
@@ -852,9 +1030,22 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |\n| `quantidade_produtos` | integer | Não | Máximo de produtos retornados |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521,\n    \"quantidade_produtos\": 10\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |\n| `quantidade_produtos` | integer | Não | Máximo de produtos retornados |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "cod_cliente": 4521,
+                    "quantidade_produtos": 10
                   }
                 }
               }
@@ -924,9 +1115,21 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "cod_cliente": 4521
                   }
                 }
               }
@@ -995,10 +1198,19 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n",
-                    "example": "{\n  \"cnpj\": \"02695980000110\"\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n"
                   }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110"
                 }
               }
             }
@@ -1077,9 +1289,21 @@
                 ],
                 "properties": {
                   "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521\n  }\n}"
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "cod_cliente": 4521
                   }
                 }
               }

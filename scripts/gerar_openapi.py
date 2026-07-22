@@ -130,28 +130,38 @@ def _request_body(cfg: dict[str, Any]) -> dict[str, Any]:
             },
         }
 
-    # form-data-json — um único campo `json` (string) contendo o JSON
-    descricao_body = "String JSON com `cnpj` e `params`.\n\n" + _params_descricao(cfg)
+    # form-data-json — o form-data tem um único campo `json` que é um payload JSON.
+    # Modelamos como `type: object` (semanticamente) + encoding.contentType
+    # (indica que o campo, na fita, vai como application/json). Isso faz
+    # renderizadores tipo Mintlify exibirem o exemplo como JSON de verdade,
+    # não como string escapada com \n e \".
+    descricao_body = (
+        "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` "
+        "dentro do `form-data`.\n\n"
+    ) + _params_descricao(cfg)
     exemplo = cfg.get("exemplo_body")
-    exemplo_str = json.dumps(exemplo, indent=2, ensure_ascii=False) if exemplo is not None else ""
+
+    media_type: dict[str, Any] = {
+        "schema": {
+            "type": "object",
+            "required": ["json"],
+            "properties": {
+                "json": {
+                    "type": "object",
+                    "description": descricao_body,
+                }
+            },
+        },
+        "encoding": {
+            "json": {"contentType": "application/json"},
+        },
+    }
+    if exemplo is not None:
+        media_type["example"] = {"json": exemplo}
 
     return {
         "required": True,
-        "content": {
-            "multipart/form-data": {
-                "schema": {
-                    "type": "object",
-                    "required": ["json"],
-                    "properties": {
-                        "json": {
-                            "type": "string",
-                            "description": descricao_body,
-                            "example": exemplo_str,
-                        }
-                    },
-                }
-            }
-        },
+        "content": {"multipart/form-data": media_type},
     }
 
 
