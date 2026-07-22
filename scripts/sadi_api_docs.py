@@ -47,7 +47,13 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "Gera um **token de acesso** para a integradora. Este token deve ser enviado "
             "no header `x-digifarma-token` em todas as demais requisições da API.\n\n"
             "O token tem validade limitada. Renove chamando este endpoint novamente quando "
-            "expirar."
+            "expirar.\n\n"
+            "**⚠️ Pré-requisitos:**\n\n"
+            "- O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — "
+            "não há auto-cadastro. Solicite via contato@digifarma.com.br.\n"
+            "- O `cnpj` informado precisa estar **liberado para o seu usuário** na base "
+            "da Digifarma. Envie a lista de CNPJs que sua integradora atenderá junto do "
+            "pedido do usuário."
         ),
         "sem_token": True,
         "body_tipo": "form-data-direto",

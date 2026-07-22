@@ -1,5 +1,23 @@
 # Introdução
 
+## ⚠️ Pré-requisitos — leia antes
+
+**Duas coisas precisam estar em ordem antes de você conseguir chamar qualquer rota.** Ambas são solicitadas junto à Digifarma pelo email [contato@digifarma.com.br](mailto:contato@digifarma.com.br) — informe o nome da sua integradora, contato técnico e a lista de CNPJs que pretende atender.
+
+### 1. Usuário de integração (`x-digifarma-user`)
+
+O valor do header `x-digifarma-user` **precisa ter sido emitido pela Digifarma**. Não existe auto-cadastro — a Digifarma cria e entrega esse usuário à sua integradora. Sem ele **nenhuma rota funciona**, nem mesmo o [`GetToken`](endpoints/get-token.md).
+
+### 2. Liberação dos CNPJs das lojas
+
+Ter o usuário **não é suficiente**. Cada **CNPJ de farmácia** que sua integradora pretende consultar precisa estar **explicitamente liberado** para o seu usuário na base da Digifarma. Sem essa liberação, o `GetToken` falha para aquela loja e nenhuma outra rota responde.
+
+Envie a lista de CNPJs junto do pedido do usuário (ou depois, pelo mesmo canal) sempre que adicionar uma loja nova à sua base.
+
+---
+
+## O que a API faz
+
 A **API SADI** permite que sistemas externos se integrem ao PDV Digifarma para:
 
 - Consultar catálogo de **produtos**, com filtros de saldo, integração e ordenação

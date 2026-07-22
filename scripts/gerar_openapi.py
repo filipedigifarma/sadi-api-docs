@@ -192,7 +192,17 @@ def build_openapi() -> dict[str, Any]:
             "description": (
                 "API REST do sistema SADI (Digifarma) para integração de parceiros. "
                 "Consulta de produtos, clientes e vendas, além de registro de pedidos "
-                "e pré-vendas."
+                "e pré-vendas.\n\n"
+                "## ⚠️ Pré-requisitos\n\n"
+                "Antes de conseguir chamar qualquer rota, sua integradora precisa de "
+                "**duas coisas emitidas pela Digifarma**:\n\n"
+                "1. **Usuário de integração** — o valor do header `x-digifarma-user` "
+                "só é válido se emitido pela Digifarma. Não existe auto-cadastro.\n"
+                "2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que "
+                "você pretende consultar precisa estar liberado para o seu usuário "
+                "na base da Digifarma.\n\n"
+                "Solicite ambos via **contato@digifarma.com.br** informando o nome "
+                "da integradora, contato técnico e a lista de CNPJs a atender."
             ),
             "contact": {
                 "name": "Digifarma",

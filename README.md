@@ -6,6 +6,8 @@ Documentação oficial da **API do SADI** (sistema PDV da Digifarma) para parcei
 - **Base URL:** `https://sadi.digifarma.com.br/api/`
 - **Formato:** REST, `POST` com body em `form-data`, resposta em JSON
 
+> ⚠️ **Antes de tentar usar a API**, sua integradora precisa: **(1)** de um usuário de integração emitido pela Digifarma (`x-digifarma-user`) — não há auto-cadastro, solicite via [contato@digifarma.com.br](mailto:contato@digifarma.com.br); e **(2)** liberação, na base da Digifarma, dos CNPJs de farmácia que pretende consultar. Sem essas duas coisas nenhuma rota funciona. Veja [`docs/introduction.md`](docs/introduction.md#-pré-requisitos--leia-antes).
+
 ## Onde ler
 
 - [Introdução](docs/introduction.md) — o que é a API e a quem se destina

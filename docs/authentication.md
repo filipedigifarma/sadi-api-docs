@@ -1,5 +1,18 @@
 # Autenticação
 
+## ⚠️ Pré-requisitos
+
+Antes de qualquer chamada — **inclusive `GetToken`** — você precisa de duas coisas emitidas pela Digifarma:
+
+1. **Usuário de integração** (`x-digifarma-user`) — não existe auto-cadastro; a Digifarma cria e entrega para a sua integradora. Solicite via [contato@digifarma.com.br](mailto:contato@digifarma.com.br).
+2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que você pretende consultar precisa estar liberado para o seu usuário. Envie a lista junto do pedido do usuário (ou depois, quando adicionar novas lojas).
+
+Sem os dois, todas as chamadas falham. Veja detalhes em [Introdução — Pré-requisitos](introduction.md#-pré-requisitos--leia-antes).
+
+---
+
+## Fluxo do token
+
 A API utiliza autenticação baseada em **token**. O fluxo é:
 
 1. Chamar [`GetToken`](endpoints/get-token.md) enviando o CNPJ da integradora → recebe um token
