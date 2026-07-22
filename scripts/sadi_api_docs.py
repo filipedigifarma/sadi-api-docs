@@ -117,26 +117,104 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
         "exemplo_body": {
             "cnpj": "02695980000110",
             "params": {
-                "tipo_consulta": "CPF",
-                "parametro": "12345678909",
+                "tipo_consulta": "NOME",
+                "parametro": "MARIA",
                 "pagina": 1,
                 "tamanho_pagina": 20,
             }
         },
         "exemplo_resposta": {
-            "result": [{
-                "total_registros": 1,
-                "clientes": [{
-                    "cliente_id": 4521,
-                    "cliente": "JOÃO DA SILVA",
-                    "cli_cpf": "12345678909",
-                    "cli_celular": "31999998888",
-                    "cli_email": "joao@exemplo.com",
-                    "cli_bloqueado": "FALSE",
-                }]
-            }]
+            "result": [
+                [
+                    {
+                        "cliente_id": "759",
+                        "cliente": "MARIA EXEMPLO SILVA",
+                        "cli_cpf": "12345678909",
+                        "telefone": "3134742191",
+                        "celular": "",
+                        "enderecos": [
+                            {
+                                "endereco": "AV EXEMPLO 2004",
+                                "bairro": "CENTRO",
+                                "cidade": "BELO HORIZONTE",
+                                "uf": "MG",
+                                "numero": "0",
+                                "complemento": "",
+                                "referencia": "",
+                                "origem": "CLIENTES",
+                            }
+                        ],
+                    },
+                    {
+                        "cliente_id": "739",
+                        "cliente": "MARIA MODELO SANTOS",
+                        "cli_cpf": "",
+                        "telefone": "",
+                        "celular": "31988887777",
+                        "enderecos": [
+                            {
+                                "endereco": "RUA EXEMPLO",
+                                "bairro": "CENTRO",
+                                "cidade": "BELO HORIZONTE",
+                                "uf": "MG",
+                                "numero": "220",
+                                "complemento": "",
+                                "referencia": "",
+                                "origem": "CLIENTES",
+                            },
+                            {
+                                "endereco": "RUA EXEMPLO",
+                                "numero": "220",
+                                "complemento": "APT 302",
+                                "referencia": "",
+                                "bairro": "CENTRO",
+                                "cidade": "BELO HORIZONTE",
+                                "cep": "30880000",
+                                "uf": "MG",
+                                "origem": "CLIENTES_ENDERECO",
+                            }
+                        ],
+                    },
+                ]
+            ]
         },
-        "notas": [],
+        "descricao_resposta": (
+            "A resposta é **aninhada duas vezes**: `result` é um array contendo um único "
+            "elemento, que por sua vez é o array de clientes encontrados. Ou seja, os "
+            "clientes estão em `result[0][]`.\n\n"
+            "### Cada cliente em `result[0][]`\n\n"
+            "| Campo | Tipo | Descrição |\n"
+            "| --- | --- | --- |\n"
+            "| `cliente_id` | string | ID interno do cliente no SADI. **Retornado como string**, mesmo sendo numérico. |\n"
+            "| `cliente` | string | Nome do cliente conforme cadastrado (pode ter capitalização mista) |\n"
+            "| `cli_cpf` | string | CPF sem formatação (11 dígitos). Vazio (`\"\"`) se não cadastrado. |\n"
+            "| `telefone` | string | Telefone fixo. Vazio se não cadastrado. |\n"
+            "| `celular` | string | Celular. Vazio se não cadastrado. |\n"
+            "| `enderecos` | array | Endereços vinculados ao cliente — pode ter mais de um (ver estrutura abaixo) |\n\n"
+            "### Cada item em `enderecos[]`\n\n"
+            "| Campo | Tipo | Descrição |\n"
+            "| --- | --- | --- |\n"
+            "| `endereco` | string | Logradouro do endereço |\n"
+            "| `bairro` | string | Bairro |\n"
+            "| `cidade` | string | Cidade |\n"
+            "| `uf` | string | Sigla do estado (2 letras) |\n"
+            "| `numero` | string | Número do endereço. Frequentemente vem `\"0\"` em endereços de origem `CLIENTES` (legado). |\n"
+            "| `complemento` | string | Complemento (apto, bloco, casa, etc.) |\n"
+            "| `referencia` | string | Ponto de referência |\n"
+            "| `cep` | string | CEP sem formatação. **Só aparece quando `origem = \"CLIENTES_ENDERECO\"`**. |\n"
+            "| `origem` | string | Fonte do endereço — enum abaixo |\n\n"
+            "### Enum de `origem` em `enderecos[]`\n\n"
+            "| Valor | Descrição |\n"
+            "| --- | --- |\n"
+            "| `CLIENTES` | Endereço legado, gravado direto no cadastro básico do cliente. Sem CEP estruturado — `numero` pode vir `\"0\"`, dados podem estar concatenados dentro de `endereco`. |\n"
+            "| `CLIENTES_ENDERECO` | Endereço da tabela de endereços múltiplos, mais estruturado — traz `cep` e campos separados corretamente. |\n\n"
+            "Um cliente pode ter endereços das duas origens simultaneamente (o do cadastro básico + um ou mais da tabela de endereços). **Priorize `CLIENTES_ENDERECO`** quando disponível — os dados são mais confiáveis pra integração."
+        ),
+        "notas": [
+            "Nomes retornados refletem o cadastro real da loja e podem ter erros de "
+            "digitação, capitalização ou caracteres especiais. Não normalize sem confirmar "
+            "com o operador.",
+        ],
     },
 
     # ==================================================================
