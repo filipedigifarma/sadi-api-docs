@@ -3,7 +3,7 @@
   "info": {
     "title": "API SADI",
     "version": "1.0.0",
-    "description": "API REST do sistema SADI (Digifarma) para integração de parceiros. Consulta de produtos, clientes e vendas, além de registro de pedidos e pré-vendas.\n\n## ⚠️ Pré-requisitos\n\nAntes de conseguir chamar qualquer rota, sua integradora precisa de **duas coisas emitidas pela Digifarma**:\n\n1. **Usuário de integração** — o valor do header `x-digifarma-user` só é válido se emitido pela Digifarma. Não existe auto-cadastro.\n2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que você pretende consultar precisa estar liberado para o seu usuário na base da Digifarma.\n\nSolicite ambos via **filipe@digifarma.com.br** informando o nome da integradora, contato técnico e a lista de CNPJs a atender.",
+    "description": "API REST do sistema SADI (Digifarma) para integração de parceiros. Consulta de produtos, clientes e vendas, além de registro de pedidos e pré-vendas.\n\n## Pré-requisitos\n\nAntes de conseguir chamar qualquer rota, sua integradora precisa de **duas coisas emitidas pela Digifarma**:\n\n1. **Usuário de integração** — o valor do header `x-digifarma-user` só é válido se emitido pela Digifarma. Não existe auto-cadastro.\n2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que você pretende consultar precisa estar liberado para o seu usuário na base da Digifarma.\n\nSolicite ambos via **filipe@digifarma.com.br** informando o nome da integradora, contato técnico e a lista de CNPJs a atender.",
     "contact": {
       "name": "Digifarma",
       "url": "https://digifarma.com.br"
@@ -43,7 +43,7 @@
       "post": {
         "operationId": "getToken",
         "summary": "GetToken - Autenticação",
-        "description": "Gera um **token de acesso** para a integradora. Este token deve ser enviado no header `x-digifarma-token` em todas as demais requisições da API.\n\nO token tem validade limitada. Renove chamando este endpoint novamente quando expirar.\n\n**⚠️ Pré-requisitos:**\n\n- O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — não há auto-cadastro. Solicite via filipe@digifarma.com.br.\n- O `cnpj` informado precisa estar **liberado para o seu usuário** na base da Digifarma. Envie a lista de CNPJs que sua integradora atenderá junto do pedido do usuário.",
+        "description": "Gera um **token de acesso** para a integradora. Este token deve ser enviado no header `x-digifarma-token` em todas as demais requisições da API.\n\nO token tem validade limitada. Renove chamando este endpoint novamente quando expirar.\n\n**Pré-requisitos:**\n\n- O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — não há auto-cadastro. Solicite via filipe@digifarma.com.br.\n- O `cnpj` informado precisa estar **liberado para o seu usuário** na base da Digifarma. Envie a lista de CNPJs que sua integradora atenderá junto do pedido do usuário.",
         "tags": [
           "Autenticação"
         ],
@@ -450,73 +450,6 @@
                       "success": true,
                       "venda_id": 45678,
                       "msg": "Pré-venda criada"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/InserirVenda": {
-      "post": {
-        "operationId": "inserirVenda",
-        "summary": "InserirVenda",
-        "description": "Registra uma **venda já finalizada** no PDV. Utilizado por integrações de marketplace (iFood, Rappi etc.) para dar baixa automática no estoque.\n\nO `params` tem quatro chaves: `venda`, `venda_item`, `delivery` e `cab_vendas_fpagtos`.",
-        "tags": [
-          "Vendas"
-        ],
-        "parameters": [
-          {
-            "name": "x-digifarma-user",
-            "in": "header",
-            "required": true,
-            "description": "Usuário fornecido pela Digifarma",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "x-digifarma-token",
-            "in": "header",
-            "required": true,
-            "description": "Token obtido via `GetToken`",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "json"
-                ],
-                "properties": {
-                  "json": {
-                    "type": "string",
-                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da venda. |\n| `venda_item` | array | Itens da venda. |\n| `delivery` | object ou array | Endereço de entrega (opcional). |\n| `cab_vendas_fpagtos` | array | Formas de pagamento detalhadas (uma por linha para pagamento multi-forma). |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da venda |\n| `venda_recebido` | number | Sim | Valor recebido |\n| `cartao_atd` | number | Não | Número do cartão de atendimento |\n| `pedido` | string | Não | Número do pedido externo |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"ifood\"`) |\n| `v_id` | string | Não | ID do vendedor ou origem |\n| `fpagto` | string | Sim | Código da forma de pagamento (ex: `\"0\"`) |\n| `cpf_cliente` | string | Não | CPF do cliente |\n| `frete` | number | Não | Valor do frete |\n| `venda_desconto` | number | Não | Desconto aplicado |\n| `troco` | number | Não | Valor do troco |\n| `token` | string | Não | Token único do pedido (idempotência) |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN/código de barras do produto |\n| `qtde` | number | Sim | Quantidade |\n| `prt` | number | Sim | Preço de tabela |\n| `prv` | number | Sim | Preço de venda |\n| `vv` | number | Sim | Valor da venda do item |\n| `desc` | number | Não | Percentual de desconto |\n| `c_tr` | string | Não | Código de tributação (ex: `\"F\"`) |\n| `pc` | integer | Não | Número de parcelas |\n| `v_id` | string | Não | ID do vendedor ou origem (ex: `\"ifood\"`) |\n\n**Campos de `delivery`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `nom` | string | Sim | Nome do destinatário |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (8 dígitos) |\n| `uf` | string | Sim | Estado (sigla) |\n| `com` | string | Não | Complemento |\n| `ref` | string | Não | Ponto de referência |\n| `tel` | string | Não | Telefone |\n| `cel` | string | Não | Celular |\n\n**Campos de `cab_vendas_fpagtos`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma de pagamento (ex: `\"cartao\"`, `\"dinheiro\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa debito\"`) |",
-                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda\": {\n      \"venda_total\": 111.99,\n      \"venda_recebido\": 111.99,\n      \"cartao_atd\": 99858,\n      \"pedido\": \"11482-F17977756\",\n      \"origem_venda\": \"ifood\",\n      \"v_id\": \"ifood\",\n      \"fpagto\": \"0\",\n      \"cpf_cliente\": \"12345678909\",\n      \"frete\": 4,\n      \"venda_desconto\": 0,\n      \"troco\": 150,\n      \"token\": \"token único\"\n    },\n    \"venda_item\": [\n      {\n        \"p_id\": \"7891317003906\",\n        \"desc\": 15,\n        \"pc\": 2,\n        \"c_tr\": \"F\",\n        \"qtde\": 1,\n        \"v_id\": \"ifood\",\n        \"prt\": 42.5,\n        \"prv\": 42.5,\n        \"vv\": 40\n      }\n    ],\n    \"delivery\": {\n      \"tel\": \"xxxxxxxxxx\",\n      \"cel\": \"xxxxxxxxxxx\",\n      \"nom\": \"João Teste\",\n      \"end\": \"Avenida Teste\",\n      \"num\": \"5\",\n      \"com\": \"casa\",\n      \"ref\": \"na esquina do posto\",\n      \"bai\": \"Centro\",\n      \"cid\": \"Ipatinga\",\n      \"cep\": \"35164000\",\n      \"uf\": \"MG\"\n    },\n    \"cab_vendas_fpagtos\": [\n      {\n        \"f\": \"cartao\",\n        \"a\": \"10\",\n        \"n\": \"321654\",\n        \"i\": \"1\",\n        \"b\": \"visa debito\"\n      }\n    ]\n  }\n}"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Sucesso",
-            "content": {
-              "application/json": {
-                "example": {
-                  "result": [
-                    {
-                      "success": true,
-                      "venda_id": 12457
                     }
                   ]
                 }

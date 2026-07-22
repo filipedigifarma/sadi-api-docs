@@ -8,7 +8,7 @@ Cada endpoint é descrito como um dict com:
 - sem_token        : True se não precisa de x-digifarma-token (só GetToken)
 - body_tipo        : "form-data-direto" (GetToken/SetSenha) ou "form-data-json" (default)
 - params           : lista simples de campos em params (dicts com campo/tipo/obrigatorio/default/descricao)
-- params_grupos    : lista de grupos, cada um com params (para InserirVenda/PreVenda/Cliente)
+- params_grupos    : lista de grupos, cada um com params (para InserirPreVenda/InserirCliente)
 - exemplo_body     : dict Python (será serializado como JSON no exemplo)
 - exemplo_resposta : dict/list Python (idem)
 - notas            : lista de observações (markdown)
@@ -48,7 +48,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "no header `x-digifarma-token` em todas as demais requisições da API.\n\n"
             "O token tem validade limitada. Renove chamando este endpoint novamente quando "
             "expirar.\n\n"
-            "**⚠️ Pré-requisitos:**\n\n"
+            "**Pré-requisitos:**\n\n"
             "- O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — "
             "não há auto-cadastro. Solicite via filipe@digifarma.com.br.\n"
             "- O `cnpj` informado precisa estar **liberado para o seu usuário** na base "
@@ -389,129 +389,6 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
         ],
     },
 
-    "InserirVenda": {
-        "descricao": (
-            "Registra uma **venda já finalizada** no PDV. Utilizado por integrações de "
-            "marketplace (iFood, Rappi etc.) para dar baixa automática no estoque.\n\n"
-            "O `params` tem quatro chaves: `venda`, `venda_item`, `delivery` e "
-            "`cab_vendas_fpagtos`."
-        ),
-        "params_grupos": [
-            {
-                "nome": "venda",
-                "tipo": "object",
-                "descricao": "Cabeçalho da venda.",
-                "params": [
-                    {"campo": "venda_total",    "tipo": "number", "obrigatorio": "Sim", "default": None, "descricao": "Valor total da venda"},
-                    {"campo": "venda_recebido", "tipo": "number", "obrigatorio": "Sim", "default": None, "descricao": "Valor recebido"},
-                    {"campo": "cartao_atd",     "tipo": "number", "obrigatorio": "Não", "default": None, "descricao": "Número do cartão de atendimento"},
-                    {"campo": "pedido",         "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Número do pedido externo"},
-                    {"campo": "origem_venda",   "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": 'Identificador da origem (ex: `"ifood"`)'},
-                    {"campo": "v_id",           "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "ID do vendedor ou origem"},
-                    {"campo": "fpagto",         "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": 'Código da forma de pagamento (ex: `"0"`)'},
-                    {"campo": "cpf_cliente",    "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "CPF do cliente"},
-                    {"campo": "frete",          "tipo": "number", "obrigatorio": "Não", "default": "0",  "descricao": "Valor do frete"},
-                    {"campo": "venda_desconto", "tipo": "number", "obrigatorio": "Não", "default": "0",  "descricao": "Desconto aplicado"},
-                    {"campo": "troco",          "tipo": "number", "obrigatorio": "Não", "default": "0",  "descricao": "Valor do troco"},
-                    {"campo": "token",          "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Token único do pedido (idempotência)"},
-                ],
-            },
-            {
-                "nome": "venda_item",
-                "tipo": "array",
-                "descricao": "Itens da venda.",
-                "params": [
-                    {"campo": "p_id",  "tipo": "string",  "obrigatorio": "Sim", "default": None, "descricao": "EAN/código de barras do produto"},
-                    {"campo": "qtde",  "tipo": "number",  "obrigatorio": "Sim", "default": None, "descricao": "Quantidade"},
-                    {"campo": "prt",   "tipo": "number",  "obrigatorio": "Sim", "default": None, "descricao": "Preço de tabela"},
-                    {"campo": "prv",   "tipo": "number",  "obrigatorio": "Sim", "default": None, "descricao": "Preço de venda"},
-                    {"campo": "vv",    "tipo": "number",  "obrigatorio": "Sim", "default": None, "descricao": "Valor da venda do item"},
-                    {"campo": "desc",  "tipo": "number",  "obrigatorio": "Não", "default": "0",  "descricao": "Percentual de desconto"},
-                    {"campo": "c_tr",  "tipo": "string",  "obrigatorio": "Não", "default": '"F"',"descricao": 'Código de tributação (ex: `"F"`)'},
-                    {"campo": "pc",    "tipo": "integer", "obrigatorio": "Não", "default": None, "descricao": "Número de parcelas"},
-                    {"campo": "v_id",  "tipo": "string",  "obrigatorio": "Não", "default": None, "descricao": 'ID do vendedor ou origem (ex: `"ifood"`)'},
-                ],
-            },
-            {
-                "nome": "delivery",
-                "tipo": "object ou array",
-                "descricao": "Endereço de entrega (opcional).",
-                "params": [
-                    {"campo": "nom", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Nome do destinatário"},
-                    {"campo": "end", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Logradouro"},
-                    {"campo": "num", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Número"},
-                    {"campo": "bai", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Bairro"},
-                    {"campo": "cid", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Cidade"},
-                    {"campo": "cep", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "CEP (8 dígitos)"},
-                    {"campo": "uf",  "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Estado (sigla)"},
-                    {"campo": "com", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Complemento"},
-                    {"campo": "ref", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Ponto de referência"},
-                    {"campo": "tel", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Telefone"},
-                    {"campo": "cel", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Celular"},
-                ],
-            },
-            {
-                "nome": "cab_vendas_fpagtos",
-                "tipo": "array",
-                "descricao": "Formas de pagamento detalhadas (uma por linha para pagamento multi-forma).",
-                "params": [
-                    {"campo": "f", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": 'Nome da forma de pagamento (ex: `"cartao"`, `"dinheiro"`)'},
-                    {"campo": "a", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Valor pago nesta forma"},
-                    {"campo": "n", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "NSU / número da transação"},
-                    {"campo": "i", "tipo": "string", "obrigatorio": "Não", "default": '"1"', "descricao": "Número de parcelas"},
-                    {"campo": "b", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": 'Bandeira (ex: `"visa debito"`)'},
-                ],
-            },
-        ],
-        "exemplo_body": {
-            "cnpj": "02695980000110",
-            "params": {
-                "venda": {
-                    "venda_total": 111.99,
-                    "venda_recebido": 111.99,
-                    "cartao_atd": 99858,
-                    "pedido": "11482-F17977756",
-                    "origem_venda": "ifood",
-                    "v_id": "ifood",
-                    "fpagto": "0",
-                    "cpf_cliente": "12345678909",
-                    "frete": 4,
-                    "venda_desconto": 0,
-                    "troco": 150,
-                    "token": "token único",
-                },
-                "venda_item": [{
-                    "p_id": "7891317003906",
-                    "desc": 15,
-                    "pc": 2,
-                    "c_tr": "F",
-                    "qtde": 1,
-                    "v_id": "ifood",
-                    "prt": 42.50,
-                    "prv": 42.50,
-                    "vv": 40,
-                }],
-                "delivery": {
-                    "tel": "xxxxxxxxxx", "cel": "xxxxxxxxxxx",
-                    "nom": "João Teste", "end": "Avenida Teste", "num": "5",
-                    "com": "casa", "ref": "na esquina do posto",
-                    "bai": "Centro", "cid": "Ipatinga",
-                    "cep": "35164000", "uf": "MG",
-                },
-                "cab_vendas_fpagtos": [{
-                    "f": "cartao", "a": "10", "n": "321654", "i": "1", "b": "visa debito",
-                }]
-            }
-        },
-        "exemplo_resposta": {
-            "result": [{"success": True, "venda_id": 12457}]
-        },
-        "notas": [
-            "Envie um `token` único por pedido para evitar duplicidade em caso de reenvio.",
-            "A soma dos `a` em `cab_vendas_fpagtos` deve ser igual a `venda_recebido`.",
-        ],
-    },
-
     "ListaVendas": {
         "descricao": (
             "Lista vendas com seus itens e pagamentos. Suporta **três modos de consulta** — "
@@ -748,7 +625,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
 
 
 # Doc geral que fica em info.description do collection — mantida enxuta.
-INFO_DESCRICAO_GERAL = """# 📘 API SADI — Documentação de integração
+INFO_DESCRICAO_GERAL = """# API SADI — Documentação de integração
 
 Base URL: `https://sadi.digifarma.com.br/api/`
 
@@ -756,7 +633,7 @@ Cada endpoint tem sua **própria página de documentação** com parâmetros, ca
 
 ---
 
-## 🔐 Autenticação
+## Autenticação
 
 Todas as requisições — exceto `GetToken` e `SetSenha` — exigem os headers:
 
@@ -773,7 +650,7 @@ Fluxo:
 
 ---
 
-## 📦 Formato padrão do body
+## Formato padrão do body
 
 Todas as requisições usam método **`POST`** e body como **`form-data`**.
 
@@ -793,7 +670,7 @@ Salvo **`GetToken`** e **`SetSenha`** (que enviam os campos diretamente), o form
 
 ---
 
-## 📚 Status de venda — referência
+## Status de venda — referência
 
 Os endpoints `ListaVendas` e `GetStatusVenda` retornam o campo `status` com estes valores possíveis:
 

@@ -48,7 +48,7 @@ def _tag(nome: str) -> str:
         return "Cliente"
     if base == "ListaProduto":
         return "Produto"
-    if base in {"InserirVenda", "InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
+    if base in {"InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
         return "Vendas"
     if base in {"GetPromocoes", "GetRecorrencias", "GetPedidosProntos", "GetPontos"}:
         return "SADI Online"
@@ -193,7 +193,7 @@ def build_openapi() -> dict[str, Any]:
                 "API REST do sistema SADI (Digifarma) para integração de parceiros. "
                 "Consulta de produtos, clientes e vendas, além de registro de pedidos "
                 "e pré-vendas.\n\n"
-                "## ⚠️ Pré-requisitos\n\n"
+                "## Pré-requisitos\n\n"
                 "Antes de conseguir chamar qualquer rota, sua integradora precisa de "
                 "**duas coisas emitidas pela Digifarma**:\n\n"
                 "1. **Usuário de integração** — o valor do header `x-digifarma-user` "

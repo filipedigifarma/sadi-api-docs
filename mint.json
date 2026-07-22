@@ -70,7 +70,6 @@
           "group": "Vendas",
           "pages": [
             "api-reference/endpoints/inserir-pre-venda",
-            "api-reference/endpoints/inserir-venda",
             "api-reference/endpoints/lista-vendas",
             "api-reference/endpoints/get-status-venda"
           ]

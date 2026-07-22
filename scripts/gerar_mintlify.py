@@ -47,7 +47,7 @@ def tag(nome: str) -> str:
         return "Cliente"
     if base == "ListaProduto":
         return "Produto"
-    if base in {"InserirVenda", "InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
+    if base in {"InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
         return "Vendas"
     if base in {"GetPromocoes", "GetRecorrencias", "GetPedidosProntos", "GetPontos"}:
         return "SADI Online"

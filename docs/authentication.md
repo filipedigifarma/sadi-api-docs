@@ -3,7 +3,7 @@ title: "Autenticação"
 description: "Como obter e usar o token, e pré-requisitos de credenciais"
 ---
 
-## ⚠️ Pré-requisitos
+## Pré-requisitos
 
 Antes de qualquer chamada — **inclusive `GetToken`** — você precisa de duas coisas emitidas pela Digifarma:
 

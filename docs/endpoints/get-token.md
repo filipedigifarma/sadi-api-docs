@@ -4,7 +4,7 @@ Gera um **token de acesso** para a integradora. Este token deve ser enviado no h
 
 O token tem validade limitada. Renove chamando este endpoint novamente quando expirar.
 
-**⚠️ Pré-requisitos:**
+**Pré-requisitos:**
 
 - O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — não há auto-cadastro. Solicite via filipe@digifarma.com.br.
 - O `cnpj` informado precisa estar **liberado para o seu usuário** na base da Digifarma. Envie a lista de CNPJs que sua integradora atenderá junto do pedido do usuário.
