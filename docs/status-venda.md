@@ -1,4 +1,7 @@
-# Status de venda — referência
+---
+title: "Status de venda"
+description: "Valores possíveis do campo status em ListaVendas e GetStatusVenda"
+---
 
 Os endpoints [`ListaVendas`](endpoints/lista-vendas.md) e [`GetStatusVenda`](endpoints/get-status-venda.md) retornam o campo `status` com os valores possíveis abaixo.
 

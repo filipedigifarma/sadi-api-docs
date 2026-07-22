@@ -1,4 +1,7 @@
-# Formato de requisição
+---
+title: "Formato de requisição"
+description: "Como montar o body em form-data com o campo json"
+---
 
 Todas as requisições usam método **`POST`** e body em **`form-data`** — não JSON no `Content-Type`.
 

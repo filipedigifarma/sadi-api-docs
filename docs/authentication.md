@@ -1,4 +1,7 @@
-# Autenticação
+---
+title: "Autenticação"
+description: "Como obter e usar o token, e pré-requisitos de credenciais"
+---
 
 ## ⚠️ Pré-requisitos
 

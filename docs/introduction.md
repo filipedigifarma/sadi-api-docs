@@ -1,4 +1,7 @@
-# Introdução
+---
+title: "Introdução"
+description: "Visão geral da API SADI e pré-requisitos de integração"
+---
 
 ## ⚠️ Pré-requisitos — leia antes
 
