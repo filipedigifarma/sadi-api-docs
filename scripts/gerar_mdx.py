@@ -171,6 +171,14 @@ def gerar_endpoint_md(nome: str, cfg: dict[str, Any]) -> str:
         partes.append("```")
         partes.append("")
 
+    # Campos da resposta (opcional — quando o endpoint tem descrição rica dos campos)
+    descricao_resposta = cfg.get("descricao_resposta")
+    if descricao_resposta:
+        partes.append("## Campos da resposta")
+        partes.append("")
+        partes.append(descricao_resposta.rstrip())
+        partes.append("")
+
     # Notas
     notas = cfg.get("notas") or []
     if notas:

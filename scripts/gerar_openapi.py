@@ -165,15 +165,22 @@ def _request_body(cfg: dict[str, Any]) -> dict[str, Any]:
 
 def _response(cfg: dict[str, Any]) -> dict[str, Any]:
     exemplo = cfg.get("exemplo_resposta")
-    resp: dict[str, Any] = {
-        "200": {
-            "description": "Sucesso",
-        }
-    }
+    descricao_resposta = cfg.get("descricao_resposta")
+
+    # Constrói a description da response — inicia com "Sucesso" e, se o endpoint
+    # tem descricao_resposta rica, anexa como sub-seção. Mintlify renderiza como
+    # markdown no painel de resposta.
+    description_partes = ["Sucesso"]
+    if descricao_resposta:
+        description_partes.append("")
+        description_partes.append("### Campos da resposta")
+        description_partes.append("")
+        description_partes.append(descricao_resposta.rstrip())
+    resp_description = "\n".join(description_partes)
+
+    resp: dict[str, Any] = {"200": {"description": resp_description}}
     if exemplo is not None:
-        resp["200"]["content"] = {
-            "application/json": {"example": exemplo}
-        }
+        resp["200"]["content"] = {"application/json": {"example": exemplo}}
     return resp
 
 
