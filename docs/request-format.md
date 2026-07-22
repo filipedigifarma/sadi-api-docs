@@ -57,5 +57,4 @@ curl -X POST https://sadi.digifarma.com.br/api/GetToken \
 Todas as respostas são JSON. O corpo tipicamente segue um destes três padrões:
 
 - **Sucesso "clássico"**: `{"result": [...]}` — a maior parte das rotas
-- **Sucesso "moderno"**: `{"success": true, "<recurso>": ...}` — rotas do SADI Online (`GetLojas`, `GetPromocoes`, `GetRecorrencias`, `GetPedidosProntos`, `GetPontos`)
 - **Erro**: `{"erro":"sim","msg":"..."}` — quando algo falha

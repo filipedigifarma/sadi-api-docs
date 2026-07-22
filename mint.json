@@ -50,8 +50,7 @@
         {
           "group": "Loja",
           "pages": [
-            "api-reference/endpoints/get-dados-loja",
-            "api-reference/endpoints/get-lojas"
+            "api-reference/endpoints/get-dados-loja"
           ]
         },
         {
@@ -80,15 +79,6 @@
           "pages": [
             "api-reference/endpoints/ping",
             "api-reference/endpoints/set-senha"
-          ]
-        },
-        {
-          "group": "SADI Online",
-          "pages": [
-            "api-reference/endpoints/get-recorrencias",
-            "api-reference/endpoints/get-pedidos-prontos",
-            "api-reference/endpoints/get-promocoes",
-            "api-reference/endpoints/get-pontos"
           ]
         }
       ]

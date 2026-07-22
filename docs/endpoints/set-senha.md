@@ -1,6 +1,6 @@
 # SetSenha
 
-Define uma **senha alfanumérica** para o cliente identificar-se ao acessar o SADI Online.
+Define uma **senha alfanumérica** associada ao CNPJ do cliente, usada em fluxos de autoatendimento onde ele precisa se identificar.
 
 **Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).
 

@@ -42,7 +42,7 @@ def _tag(nome: str) -> str:
     base = nome.split(" - ")[0]
     if base == "GetToken":
         return "Autenticação"
-    if base in {"GetDadosLoja", "GetLojas"}:
+    if base == "GetDadosLoja":
         return "Loja"
     if base in {"InserirCliente", "ListaCliente"}:
         return "Cliente"
@@ -50,8 +50,6 @@ def _tag(nome: str) -> str:
         return "Produto"
     if base in {"InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
         return "Vendas"
-    if base in {"GetPromocoes", "GetRecorrencias", "GetPedidosProntos", "GetPontos"}:
-        return "SADI Online"
     return "Utilitários"
 
 
@@ -228,7 +226,6 @@ def build_openapi() -> dict[str, Any]:
             {"name": "Cliente"},
             {"name": "Produto"},
             {"name": "Vendas"},
-            {"name": "SADI Online"},
             {"name": "Utilitários"},
         ],
         "paths": paths,

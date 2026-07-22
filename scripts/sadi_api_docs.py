@@ -466,8 +466,8 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
 
     "SetSenha": {
         "descricao": (
-            "Define uma **senha alfanumérica** para o cliente identificar-se ao acessar "
-            "o SADI Online.\n\n"
+            "Define uma **senha alfanumérica** associada ao CNPJ do cliente, usada em "
+            "fluxos de autoatendimento onde ele precisa se identificar.\n\n"
             "**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas)."
         ),
         "body_tipo": "form-data-direto",
@@ -480,147 +480,6 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
         "notas": [],
     },
 
-    # ==================================================================
-    # SADI Online (rotas consumidas pelo portal web)
-    # ==================================================================
-    "GetLojas": {
-        "descricao": (
-            "Retorna dados **cadastrais da farmácia** (nome fantasia, razão social, "
-            "endereço, contato) para exibição no carregamento inicial da página via QR Code."
-        ),
-        "exemplo_body": {"cnpj": "02695980000110"},
-        "exemplo_resposta": {
-            "success": True,
-            "loja": {
-                "cnpj": "02695980000110",
-                "fantasia": "FARMÁCIA EXEMPLO",
-                "razao_social": "FARMÁCIA EXEMPLO LTDA",
-                "ie": "123456789",
-                "logradouro": "Rua das Flores",
-                "numero": "100",
-                "bairro": "Centro",
-                "cidade": "Belo Horizonte",
-                "estado": "MG",
-                "telefone": "3132001234",
-                "email": "contato@farmacia.com.br",
-                "ativo": "S",
-            }
-        },
-        "notas": ["Este endpoint dispensa `params` — envie apenas `cnpj` no body."],
-    },
-
-    "GetRecorrencias": {
-        "descricao": (
-            "Retorna **produtos de compra recorrente** do cliente com base no histórico. "
-            "Considera itens comprados 2 ou mais vezes, calcula o ciclo médio de dias entre "
-            "compras e indica se o cliente está atrasado para renovar."
-        ),
-        "params": [
-            {"campo": "cod_cliente",         "tipo": "integer", "obrigatorio": "Sim", "default": None,   "descricao": "ID interno do cliente"},
-            {"campo": "quantidade_produtos", "tipo": "integer", "obrigatorio": "Não", "default": "10",   "descricao": "Máximo de produtos retornados"},
-        ],
-        "exemplo_body": {
-            "cnpj": "02695980000110",
-            "params": {"cod_cliente": 4521, "quantidade_produtos": 10}
-        },
-        "exemplo_resposta": {
-            "success": True,
-            "recorrencias": [{
-                "cod_produto": "4521",
-                "descricao": "LOSARTANA 50MG 30CPR",
-                "ultima_compra": "2026-04-18",
-                "ciclo_dias": 30,
-                "dias_desde_ultima": 28,
-                "atrasado": False,
-            }]
-        },
-        "notas": [
-            "`ciclo_dias` é a média de dias entre compras. `atrasado = true` quando "
-            "`dias_desde_ultima >= ciclo_dias`.",
-        ],
-    },
-
-    "GetPedidosProntos": {
-        "descricao": (
-            "Retorna **pedidos de manipulação** do cliente prontos para retirada. "
-            "Identifica itens com flag `PEDIDO_MANIPULACAO` não cancelados. "
-            "Máximo 20 registros, ordem cronológica decrescente."
-        ),
-        "params": [
-            {"campo": "cod_cliente", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID interno do cliente"},
-        ],
-        "exemplo_body": {
-            "cnpj": "02695980000110",
-            "params": {"cod_cliente": 4521}
-        },
-        "exemplo_resposta": {
-            "success": True,
-            "pedidos": [{
-                "numero": "8542",
-                "descricao": "FÓRMULA MAGISTRAL SÉRUM",
-                "tipo": "MANIPULADO",
-                "data_previsao": "2026-05-10",
-                "status": "PRONTO",
-            }]
-        },
-        "notas": [],
-    },
-
-    "GetPromocoes": {
-        "descricao": (
-            "Retorna **promoções ativas** da farmácia em duas categorias:\n\n"
-            "- `gerais` — ofertas de preço com desconto\n"
-            "- `compra_leva` — promoções do tipo *leve X, pague Y*\n\n"
-            "Apenas produtos com saldo > 0 e dentro do período de validade. Máximo 20 itens por categoria."
-        ),
-        "exemplo_body": {"cnpj": "02695980000110"},
-        "exemplo_resposta": {
-            "success": True,
-            "gerais": [{
-                "id": 1234,
-                "titulo": "DIPIRONA 500MG 20CPR",
-                "preco_de": 12.50,
-                "preco_por": 9.90,
-                "percentual_desconto": 21,
-                "tipo": "OFERTA",
-                "validade": "2026-05-31",
-            }],
-            "compra_leva": [{
-                "id": 5678,
-                "titulo": "Leve 3, Pague 2",
-                "produto": "PROTETOR SOLAR FPS 60",
-                "detalhe": "Leve 3 unidades e pague apenas 2",
-                "validade": "2026-06-30",
-            }]
-        },
-        "notas": ["Este endpoint dispensa `params` — envie apenas `cnpj` no body."],
-    },
-
-    "GetPontos": {
-        "descricao": (
-            "Retorna o **saldo de pontos de fidelidade** do cliente e progresso "
-            "para o próximo prêmio. **Cálculo atual**: 1 ponto a cada R$ 10 em compras efetivadas."
-        ),
-        "params": [
-            {"campo": "cod_cliente", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID interno do cliente"},
-        ],
-        "exemplo_body": {
-            "cnpj": "02695980000110",
-            "params": {"cod_cliente": 4521}
-        },
-        "exemplo_resposta": {
-            "success": True,
-            "pontos": {
-                "saldo": 150,
-                "proximo_premio_pontos": 1500,
-                "proximo_premio_descricao": "Vale-desconto R$ 15,00",
-                "pode_resgatar": False,
-            }
-        },
-        "notas": [
-            "`pode_resgatar = true` quando `saldo >= proximo_premio_pontos`.",
-        ],
-    },
 }
 
 

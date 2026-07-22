@@ -12,8 +12,3 @@
 | GetStatusVenda | [get-status-venda.md](get-status-venda.md) |
 | Ping | [ping.md](ping.md) |
 | SetSenha | [set-senha.md](set-senha.md) |
-| GetLojas | [get-lojas.md](get-lojas.md) |
-| GetRecorrencias | [get-recorrencias.md](get-recorrencias.md) |
-| GetPedidosProntos | [get-pedidos-prontos.md](get-pedidos-prontos.md) |
-| GetPromocoes | [get-promocoes.md](get-promocoes.md) |
-| GetPontos | [get-pontos.md](get-pontos.md) |

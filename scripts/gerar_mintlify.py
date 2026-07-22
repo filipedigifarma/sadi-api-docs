@@ -41,7 +41,7 @@ def tag(nome: str) -> str:
     base = nome.split(" - ")[0]
     if base == "GetToken":
         return "Autenticação"
-    if base in {"GetDadosLoja", "GetLojas"}:
+    if base == "GetDadosLoja":
         return "Loja"
     if base in {"InserirCliente", "ListaCliente"}:
         return "Cliente"
@@ -49,8 +49,6 @@ def tag(nome: str) -> str:
         return "Produto"
     if base in {"InserirPreVenda", "ListaVendas", "GetStatusVenda"}:
         return "Vendas"
-    if base in {"GetPromocoes", "GetRecorrencias", "GetPedidosProntos", "GetPontos"}:
-        return "SADI Online"
     return "Utilitários"
 
 
@@ -65,7 +63,6 @@ ORDEM_TAGS = [
     "Produto",
     "Vendas",
     "Utilitários",
-    "SADI Online",
 ]
 
 

@@ -26,9 +26,8 @@ A **API SADI** permite que sistemas externos se integrem ao PDV Digifarma para:
 - Consultar catálogo de **produtos**, com filtros de saldo, integração e ordenação
 - Buscar **clientes** por CPF, nome, telefone ou código
 - Cadastrar/atualizar clientes
-- Registrar **vendas** finalizadas (marketplaces como iFood, Rappi) ou **pré-vendas** (delivery próprio)
+- Registrar **pré-vendas** (pedidos delivery)
 - Consultar **vendas** por período, ID ou data de alteração
-- Acessar dados de **fidelidade**, **recorrências** de compra, **pedidos prontos** para retirada e **promoções ativas** — usados pelo portal SADI Online
 
 ## Características
 
