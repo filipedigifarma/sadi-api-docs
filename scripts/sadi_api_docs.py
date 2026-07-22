@@ -8,7 +8,7 @@ Cada endpoint é descrito como um dict com:
 - sem_token        : True se não precisa de x-digifarma-token (só GetToken)
 - body_tipo        : "form-data-direto" (GetToken/SetSenha) ou "form-data-json" (default)
 - params           : lista simples de campos em params (dicts com campo/tipo/obrigatorio/default/descricao)
-- params_grupos    : lista de grupos, cada um com params (para InserirPreVenda/InserirCliente)
+- params_grupos    : lista de grupos, cada um com params (para endpoints com body estruturado, ex: InserirPreVenda)
 - exemplo_body     : dict Python (será serializado como JSON no exemplo)
 - exemplo_resposta : dict/list Python (idem)
 - notas            : lista de observações (markdown)
@@ -103,68 +103,6 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
     # ==================================================================
     # Cliente
     # ==================================================================
-    "InserirCliente": {
-        "descricao": (
-            "Cadastra um **novo cliente** ou atualiza um existente.\n\n"
-            "- Para inserir: envie `CLIENTE_ID = \"0\"`.\n"
-            "- Para atualizar: envie o `CLIENTE_ID` do registro existente.\n\n"
-            "O array `CLIENTE` deve conter exatamente **1 objeto**."
-        ),
-        "params_grupos": [
-            {
-                "nome": "CLIENTE",
-                "tipo": "array (1 objeto)",
-                "descricao": "Dados do cliente a inserir/atualizar",
-                "params": [
-                    {"campo": "CLIENTE_ID",         "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": '`"0"` = novo cliente; ID existente = atualiza'},
-                    {"campo": "CLIENTE",            "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Nome completo do cliente (maiúsculas)"},
-                    {"campo": "CLI_CPF",            "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "CPF sem formatação (11 dígitos)"},
-                    {"campo": "CLI_RG",             "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "RG do cliente"},
-                    {"campo": "CLI_ENDERECO",      "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Logradouro"},
-                    {"campo": "CLI_NUMERO",         "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Número do endereço"},
-                    {"campo": "CLI_BAIRRO",         "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Bairro"},
-                    {"campo": "CLI_CIDADE",         "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Cidade"},
-                    {"campo": "CLI_CEP",            "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "CEP sem formatação (8 dígitos)"},
-                    {"campo": "CLI_UF",             "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Estado (sigla de 2 letras)"},
-                    {"campo": "CLI_TELEFONE",       "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Telefone fixo"},
-                    {"campo": "CLI_CELULAR",        "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Celular"},
-                    {"campo": "CLI_EMAIL",          "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "E-mail"},
-                    {"campo": "CLI_SEXO",           "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": '`"M"` = Masculino, `"F"` = Feminino'},
-                    {"campo": "CLI_ESTADO_CIVIL",   "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": '`"S"`=solteiro, `"C"`=casado, `"D"`=divorciado, `"V"`=viúvo'},
-                    {"campo": "CLI_NASCIMENTO",     "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Data de nascimento `yyyy-mm-dd`"},
-                    {"campo": "CLI_CONJUGE",        "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Nome do cônjuge"},
-                    {"campo": "CLI_PAI",            "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Nome do pai"},
-                    {"campo": "CLI_MAE",            "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Nome da mãe"},
-                    {"campo": "CADASTRO_VENDEDOR_ID","tipo":"string", "obrigatorio": "Não", "default": None, "descricao": "ID do vendedor que fez o cadastro"},
-                    {"campo": "CLI_SALARIO",        "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Salário do cliente"},
-                    {"campo": "CLI_LIMITE",         "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Limite de crediário"},
-                    {"campo": "CREDIARIO",          "tipo": "string", "obrigatorio": "Não", "default": '"FALSE"', "descricao": '`"TRUE"` ou `"FALSE"` — habilita crediário'},
-                    {"campo": "CLI_BLOQUEADO",      "tipo": "string", "obrigatorio": "Não", "default": '"FALSE"', "descricao": '`"TRUE"` ou `"FALSE"` — bloqueia cliente'},
-                    {"campo": "ORIGEM_CADASTRO_ID", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "Identificador da origem do cadastro (ex: nome do sistema)"},
-                ],
-            }
-        ],
-        "exemplo_body": {
-            "cnpj": "02695980000110",
-            "params": {
-                "CLIENTE": [{
-                    "CLIENTE_ID": "0",
-                    "CLIENTE": "JOÃO DA SILVA",
-                    "CLI_CPF": "12345678901",
-                    "CLI_NASCIMENTO": "1985-05-20",
-                    "CLI_CELULAR": "31998765432",
-                    "CREDIARIO": "FALSE",
-                    "CLI_BLOQUEADO": "FALSE",
-                    "ORIGEM_CADASTRO_ID": "MEUAPP",
-                }]
-            }
-        },
-        "exemplo_resposta": {
-            "result": [{"success": True, "CLIENTE_ID": 12345}]
-        },
-        "notas": [],
-    },
-
     "ListaCliente": {
         "descricao": (
             "Busca clientes cadastrados na loja por CPF, nome, código interno ou telefone. "

@@ -31,7 +31,6 @@ sadi-api-docs/
 │   ├── status-venda.md
 │   └── endpoints/
 │       ├── get-token.md
-│       ├── inserir-cliente.md
 │       └── ...                  ← um por endpoint
 └── scripts/
     ├── sadi_api_docs.py         ← fonte única (dados dos endpoints)

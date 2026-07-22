@@ -56,7 +56,6 @@
         {
           "group": "Cliente",
           "pages": [
-            "api-reference/endpoints/inserir-cliente",
             "api-reference/endpoints/lista-cliente"
           ]
         },

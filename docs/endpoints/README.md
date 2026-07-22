@@ -4,7 +4,6 @@
 | --- | --- |
 | GetToken - Autenticação | [get-token.md](get-token.md) |
 | GetDadosLoja | [get-dados-loja.md](get-dados-loja.md) |
-| InserirCliente | [inserir-cliente.md](inserir-cliente.md) |
 | ListaCliente | [lista-cliente.md](lista-cliente.md) |
 | ListaProduto | [lista-produto.md](lista-produto.md) |
 | InserirPreVenda | [inserir-pre-venda.md](inserir-pre-venda.md) |

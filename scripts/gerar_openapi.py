@@ -44,7 +44,7 @@ def _tag(nome: str) -> str:
         return "Autenticação"
     if base == "GetDadosLoja":
         return "Loja"
-    if base in {"InserirCliente", "ListaCliente"}:
+    if base == "ListaCliente":
         return "Cliente"
     if base == "ListaProduto":
         return "Produto"
