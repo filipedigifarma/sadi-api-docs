@@ -15,14 +15,4 @@ navigation:
       - page: Status de venda
         path: ../docs/status-venda.md
   - tab: API Reference
-    api: API Reference
-
-colors:
-  accent-primary:
-    dark: "#4A9EFF"
-    light: "#0057D9"
-
-layout:
-  page-width: full
-  content-width: 45rem
-  sidebar-width: 18rem
+    api: API SADI
