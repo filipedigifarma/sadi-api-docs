@@ -1,0 +1,1177 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "API SADI",
+    "version": "1.0.0",
+    "description": "API REST do sistema SADI (Digifarma) para integração de parceiros. Consulta de produtos, clientes e vendas, além de registro de pedidos e pré-vendas.",
+    "contact": {
+      "name": "Digifarma",
+      "url": "https://digifarma.com.br"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://sadi.digifarma.com.br/api",
+      "description": "Produção"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Autenticação"
+    },
+    {
+      "name": "Loja"
+    },
+    {
+      "name": "Cliente"
+    },
+    {
+      "name": "Produto"
+    },
+    {
+      "name": "Vendas"
+    },
+    {
+      "name": "SADI Online"
+    },
+    {
+      "name": "Utilitários"
+    }
+  ],
+  "paths": {
+    "/GetToken": {
+      "post": {
+        "operationId": "getToken",
+        "summary": "GetToken - Autenticação",
+        "description": "Gera um **token de acesso** para a integradora. Este token deve ser enviado no header `x-digifarma-token` em todas as demais requisições da API.\n\nO token tem validade limitada. Renove chamando este endpoint novamente quando expirar.",
+        "tags": [
+          "Autenticação"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cnpj": {
+                    "type": "string",
+                    "description": "CNPJ da integradora (somente dígitos, sem formatação)"
+                  }
+                },
+                "required": [
+                  "cnpj"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "token": "seu-token-aqui"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetDadosLoja": {
+      "post": {
+        "operationId": "getDadosLoja",
+        "summary": "GetDadosLoja",
+        "description": "Retorna os **dados fiscais e cadastrais** da loja vinculada ao CNPJ informado. Utilizado tipicamente para exibir cabeçalho da loja em telas de integração.",
+        "tags": [
+          "Loja"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": null\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    [
+                      {
+                        "CNPJ": "02695980000110",
+                        "FANTASIA": "FARMÁCIA EXEMPLO",
+                        "RAZAO_SOCIAL": "FARMÁCIA EXEMPLO LTDA",
+                        "INSCRICAO": "000000000",
+                        "ENDERECO": "RUA EXEMPLO",
+                        "NUMERO": "100",
+                        "BAIRRO": "CENTRO",
+                        "CIDADE": "BELO HORIZONTE",
+                        "ESTADO": "MG",
+                        "TELEFONE": "31-0000 0000",
+                        "EMAIL": "contato@farmacia.com.br"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/InserirCliente": {
+      "post": {
+        "operationId": "inserirCliente",
+        "summary": "InserirCliente",
+        "description": "Cadastra um **novo cliente** ou atualiza um existente.\n\n- Para inserir: envie `CLIENTE_ID = \"0\"`.\n- Para atualizar: envie o `CLIENTE_ID` do registro existente.\n\nO array `CLIENTE` deve conter exatamente **1 objeto**.",
+        "tags": [
+          "Cliente"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `CLIENTE` | array (1 objeto) | Dados do cliente a inserir/atualizar |\n\n**Campos de `CLIENTE`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `CLIENTE_ID` | string | Sim | `\"0\"` = novo cliente; ID existente = atualiza |\n| `CLIENTE` | string | Sim | Nome completo do cliente (maiúsculas) |\n| `CLI_CPF` | string | Sim | CPF sem formatação (11 dígitos) |\n| `CLI_RG` | string | Não | RG do cliente |\n| `CLI_ENDERECO` | string | Não | Logradouro |\n| `CLI_NUMERO` | string | Não | Número do endereço |\n| `CLI_BAIRRO` | string | Não | Bairro |\n| `CLI_CIDADE` | string | Não | Cidade |\n| `CLI_CEP` | string | Não | CEP sem formatação (8 dígitos) |\n| `CLI_UF` | string | Não | Estado (sigla de 2 letras) |\n| `CLI_TELEFONE` | string | Não | Telefone fixo |\n| `CLI_CELULAR` | string | Não | Celular |\n| `CLI_EMAIL` | string | Não | E-mail |\n| `CLI_SEXO` | string | Não | `\"M\"` = Masculino, `\"F\"` = Feminino |\n| `CLI_ESTADO_CIVIL` | string | Não | `\"S\"`=solteiro, `\"C\"`=casado, `\"D\"`=divorciado, `\"V\"`=viúvo |\n| `CLI_NASCIMENTO` | string | Não | Data de nascimento `yyyy-mm-dd` |\n| `CLI_CONJUGE` | string | Não | Nome do cônjuge |\n| `CLI_PAI` | string | Não | Nome do pai |\n| `CLI_MAE` | string | Não | Nome da mãe |\n| `CADASTRO_VENDEDOR_ID` | string | Não | ID do vendedor que fez o cadastro |\n| `CLI_SALARIO` | string | Não | Salário do cliente |\n| `CLI_LIMITE` | string | Não | Limite de crediário |\n| `CREDIARIO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — habilita crediário |\n| `CLI_BLOQUEADO` | string | Não | `\"TRUE\"` ou `\"FALSE\"` — bloqueia cliente |\n| `ORIGEM_CADASTRO_ID` | string | Não | Identificador da origem do cadastro (ex: nome do sistema) |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"CLIENTE\": [\n      {\n        \"CLIENTE_ID\": \"0\",\n        \"CLIENTE\": \"JOÃO DA SILVA\",\n        \"CLI_CPF\": \"12345678901\",\n        \"CLI_NASCIMENTO\": \"1985-05-20\",\n        \"CLI_CELULAR\": \"31998765432\",\n        \"CREDIARIO\": \"FALSE\",\n        \"CLI_BLOQUEADO\": \"FALSE\",\n        \"ORIGEM_CADASTRO_ID\": \"MEUAPP\"\n      }\n    ]\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "CLIENTE_ID": 12345
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ListaCliente": {
+      "post": {
+        "operationId": "listaCliente",
+        "summary": "ListaCliente",
+        "description": "Busca clientes cadastrados na loja por CPF, nome, código interno ou telefone. Suporta paginação.",
+        "tags": [
+          "Cliente"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"NOME\"`, `\"CPF\"` ou `\"TELEFONE\"` |\n| `parametro` | string | Sim | Valor a ser pesquisado |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"CPF\",\n    \"parametro\": \"12345678909\",\n    \"pagina\": 1,\n    \"tamanho_pagina\": 20\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "total_registros": 1,
+                      "clientes": [
+                        {
+                          "cliente_id": 4521,
+                          "cliente": "JOÃO DA SILVA",
+                          "cli_cpf": "12345678909",
+                          "cli_celular": "31999998888",
+                          "cli_email": "joao@exemplo.com",
+                          "cli_bloqueado": "FALSE"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ListaProduto": {
+      "post": {
+        "operationId": "listaProduto",
+        "summary": "ListaProduto",
+        "description": "Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtros de saldo e integração.",
+        "tags": [
+          "Produto"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `integracao` | string | Não | Filtra produtos vinculados a uma integração (ex: `\"DIGIFARMA\"`) |\n| `apenas_integracao` | boolean | Não | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"EAN\",\n    \"parametro\": \"7896422507967\",\n    \"pagina\": 1,\n    \"tamanho_pagina\": 10,\n    \"saldo_positivo\": false,\n    \"ordenar_por\": \"PRODUTO\",\n    \"ordem\": \"ASC\",\n    \"integracao\": \"\",\n    \"apenas_integracao\": false\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "total_registros": 150,
+                      "produtos": [
+                        {
+                          "produto_id": 12345,
+                          "cod_barras": "7891234567890",
+                          "produto": "PARACETAMOL 500MG",
+                          "fabricante": "EMS",
+                          "categoria": "ANALGÉSICO",
+                          "saldo": 35.0,
+                          "preco_venda": 12.5,
+                          "leve_x_pague_y": null,
+                          "desconto_escalonado": []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/InserirPreVenda": {
+      "post": {
+        "operationId": "inserirPreVenda",
+        "summary": "InserirPreVenda",
+        "description": "Registra um **pedido de pré-venda** (ex: pedido delivery). A pré-venda fica pendente no PDV até ser processada pelo operador da farmácia.\n\nO `params` tem três chaves: `venda` (cabeçalho), `venda_item` (itens) e `delivery` (endereço).",
+        "tags": [
+          "Vendas"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da venda — totais, cliente e forma de pagamento. |\n| `venda_item` | array | Itens da venda — um objeto por produto. |\n| `pagamento` | array | Formas de pagamento utilizadas. |\n| `delivery` | object | Endereço de entrega. Pode ser omitido se não houver delivery. |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da venda |\n| `venda_recebido` | number | Sim | Valor recebido do cliente |\n| `cartao_atd` | string | Não | Número do cartão de atendimento |\n| `pedido` | string | Não | Número do pedido externo |\n| `v_id` | string | Sim | ID do vendedor ou origem |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"IFOOD\"`, `\"POSTMAN\"`) |\n| `cliente_id` | string | Não | ID do cliente (`\"0\"` = venda avulsa) |\n| `delivery_id` | string | Não | ID do endereço de delivery |\n| `cliente` | string | Não | Nome do cliente |\n| `comprador` | string | Não | Nome do comprador |\n| `fpagto` | string | Sim | Código da forma de pagamento (ex: `\"0\"` = dinheiro) |\n| `cpf_cliente` | string | Não | CPF do cliente (sem formatação) |\n| `token` | string | Não | Token único do pedido (idempotência) |\n| `frete` | number | Não | Valor do frete |\n| `troco` | number | Não | Valor do troco |\n| `obs` | string | Não | Observações do pedido |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN/código de barras do produto |\n| `qtde` | number | Sim | Quantidade |\n| `prt` | number | Sim | Preço de tabela |\n| `prv` | number | Sim | Preço de venda |\n| `vv` | number | Sim | Valor total do item |\n| `desc` | number | Não | Valor de desconto |\n| `c_tr` | string | Não | Código de tributação (ex: `\"F\"`) |\n| `v_id` | string | Não | ID do vendedor |\n| `padrao_comissao` | number | Não | Percentual de comissão |\n\n**Campos de `pagamento`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma (ex: `\"dinheiro\"`, `\"cartao\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa\"`) |\n\n**Campos de `delivery`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `nom` | string | Sim | Nome do destinatário |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (8 dígitos, sem formatação) |\n| `uf` | string | Sim | Estado (sigla de 2 letras) |\n| `com` | string | Não | Complemento |\n| `ref` | string | Não | Ponto de referência |\n| `tel` | string | Não | Telefone fixo |\n| `cel` | string | Não | Celular |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda\": {\n      \"venda_total\": 77.59,\n      \"venda_recebido\": 77.59,\n      \"cartao_atd\": \"1833197\",\n      \"pedido\": \"\",\n      \"v_id\": \"1\",\n      \"origem_venda\": \"POSTMAN\",\n      \"cliente_id\": \"0\",\n      \"delivery_id\": \"0\",\n      \"cliente\": \"Cliente Exemplo\",\n      \"comprador\": \"Cliente Exemplo\",\n      \"fpagto\": \"0\",\n      \"cpf_cliente\": \"12345678909\",\n      \"token\": \"identificador-unico-do-pedido\",\n      \"frete\": 0,\n      \"troco\": 0,\n      \"obs\": \"\"\n    },\n    \"venda_item\": [\n      {\n        \"p_id\": \"7891800662122\",\n        \"qtde\": 2,\n        \"prt\": 33.8,\n        \"prv\": 33.8,\n        \"vv\": 33.8,\n        \"desc\": 0,\n        \"c_tr\": \"F\",\n        \"v_id\": \"1\",\n        \"padrao_comissao\": 0\n      }\n    ],\n    \"pagamento\": [\n      {\n        \"f\": \"dinheiro\",\n        \"a\": \"77.59\",\n        \"n\": \"\",\n        \"i\": \"1\",\n        \"b\": \"\"\n      }\n    ],\n    \"delivery\": {\n      \"tel\": \"\",\n      \"cel\": \"\",\n      \"nom\": \"Cliente Exemplo\",\n      \"end\": \"Rua Exemplo\",\n      \"num\": \"100\",\n      \"com\": \"Casa\",\n      \"ref\": \"\",\n      \"bai\": \"Centro\",\n      \"cid\": \"Belo Horizonte\",\n      \"cep\": \"30000000\",\n      \"uf\": \"MG\"\n    }\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "venda_id": 45678,
+                      "msg": "Pré-venda criada"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/InserirVenda": {
+      "post": {
+        "operationId": "inserirVenda",
+        "summary": "InserirVenda",
+        "description": "Registra uma **venda já finalizada** no PDV. Utilizado por integrações de marketplace (iFood, Rappi etc.) para dar baixa automática no estoque.\n\nO `params` tem quatro chaves: `venda`, `venda_item`, `delivery` e `cab_vendas_fpagtos`.",
+        "tags": [
+          "Vendas"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da venda. |\n| `venda_item` | array | Itens da venda. |\n| `delivery` | object ou array | Endereço de entrega (opcional). |\n| `cab_vendas_fpagtos` | array | Formas de pagamento detalhadas (uma por linha para pagamento multi-forma). |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da venda |\n| `venda_recebido` | number | Sim | Valor recebido |\n| `cartao_atd` | number | Não | Número do cartão de atendimento |\n| `pedido` | string | Não | Número do pedido externo |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"ifood\"`) |\n| `v_id` | string | Não | ID do vendedor ou origem |\n| `fpagto` | string | Sim | Código da forma de pagamento (ex: `\"0\"`) |\n| `cpf_cliente` | string | Não | CPF do cliente |\n| `frete` | number | Não | Valor do frete |\n| `venda_desconto` | number | Não | Desconto aplicado |\n| `troco` | number | Não | Valor do troco |\n| `token` | string | Não | Token único do pedido (idempotência) |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN/código de barras do produto |\n| `qtde` | number | Sim | Quantidade |\n| `prt` | number | Sim | Preço de tabela |\n| `prv` | number | Sim | Preço de venda |\n| `vv` | number | Sim | Valor da venda do item |\n| `desc` | number | Não | Percentual de desconto |\n| `c_tr` | string | Não | Código de tributação (ex: `\"F\"`) |\n| `pc` | integer | Não | Número de parcelas |\n| `v_id` | string | Não | ID do vendedor ou origem (ex: `\"ifood\"`) |\n\n**Campos de `delivery`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `nom` | string | Sim | Nome do destinatário |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (8 dígitos) |\n| `uf` | string | Sim | Estado (sigla) |\n| `com` | string | Não | Complemento |\n| `ref` | string | Não | Ponto de referência |\n| `tel` | string | Não | Telefone |\n| `cel` | string | Não | Celular |\n\n**Campos de `cab_vendas_fpagtos`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma de pagamento (ex: `\"cartao\"`, `\"dinheiro\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa debito\"`) |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda\": {\n      \"venda_total\": 111.99,\n      \"venda_recebido\": 111.99,\n      \"cartao_atd\": 99858,\n      \"pedido\": \"11482-F17977756\",\n      \"origem_venda\": \"ifood\",\n      \"v_id\": \"ifood\",\n      \"fpagto\": \"0\",\n      \"cpf_cliente\": \"12345678909\",\n      \"frete\": 4,\n      \"venda_desconto\": 0,\n      \"troco\": 150,\n      \"token\": \"token único\"\n    },\n    \"venda_item\": [\n      {\n        \"p_id\": \"7891317003906\",\n        \"desc\": 15,\n        \"pc\": 2,\n        \"c_tr\": \"F\",\n        \"qtde\": 1,\n        \"v_id\": \"ifood\",\n        \"prt\": 42.5,\n        \"prv\": 42.5,\n        \"vv\": 40\n      }\n    ],\n    \"delivery\": {\n      \"tel\": \"xxxxxxxxxx\",\n      \"cel\": \"xxxxxxxxxxx\",\n      \"nom\": \"João Teste\",\n      \"end\": \"Avenida Teste\",\n      \"num\": \"5\",\n      \"com\": \"casa\",\n      \"ref\": \"na esquina do posto\",\n      \"bai\": \"Centro\",\n      \"cid\": \"Ipatinga\",\n      \"cep\": \"35164000\",\n      \"uf\": \"MG\"\n    },\n    \"cab_vendas_fpagtos\": [\n      {\n        \"f\": \"cartao\",\n        \"a\": \"10\",\n        \"n\": \"321654\",\n        \"i\": \"1\",\n        \"b\": \"visa debito\"\n      }\n    ]\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "venda_id": 12457
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ListaVendas": {
+      "post": {
+        "operationId": "listaVendas",
+        "summary": "ListaVendas",
+        "description": "Lista vendas com seus itens e pagamentos. Suporta **três modos de consulta** — escolha via `tipo_consulta`. Ideal para sincronizações incrementais usando o modo `ALTERACAO`.",
+        "tags": [
+          "Vendas"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"DATA\"`, `\"CODIGO\"` ou `\"ALTERACAO\"` |\n| `data_inicio` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `data_fim` | string | Condicional | Formato `yyyy-mm-dd`. Obrigatório se `tipo_consulta = \"DATA\"` |\n| `venda_id` | string | Condicional | ID da venda. Obrigatório se `tipo_consulta = \"CODIGO\"` |\n| `data_hora_alteracao` | string | Condicional | Formato `yyyy-mm-dd hh:nn:ss`. Obrigatório se `tipo_consulta = \"ALTERACAO\"` |\n| `origem_venda` | string | Não | Filtra por origem (ex: `\"IFOOD\"`). Opcional em qualquer modo |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"tipo_consulta\": \"DATA\",\n    \"data_inicio\": \"2025-10-01\",\n    \"data_fim\": \"2025-10-09\",\n    \"origem_venda\": \"\"\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "venda_id": 12457,
+                    "cnpj": "02695980000110",
+                    "data_venda": "2025-09-28 14:32:00.0000",
+                    "valor_total": 253.9,
+                    "cliente": "JOÃO SILVA",
+                    "status": "VENDA_CONCLUIDA",
+                    "descricao": "Venda concluída",
+                    "nfce_chave": "31250902695980000110650010000001231000012310",
+                    "itens": [
+                      {
+                        "produto_id": 4855,
+                        "produto": "DIPIRONA 500MG"
+                      }
+                    ],
+                    "pagamentos": [
+                      {
+                        "tipo_pagamento": "Cartão de Débito"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetStatusVenda": {
+      "post": {
+        "operationId": "getStatusVenda",
+        "summary": "GetStatusVenda",
+        "description": "Retorna o **status atual** de uma venda pelo seu ID interno.",
+        "tags": [
+          "Vendas"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_id` | integer | Sim | ID interno da venda |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"venda_id\": 12457\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "venda_id": 12457,
+                  "data_venda": "2025-09-28 14:32:00.0000",
+                  "valor_total": 253.9,
+                  "status": "PEDIDO_ENTREGUE",
+                  "descricao": "Pedido entregue"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Ping": {
+      "post": {
+        "operationId": "ping",
+        "summary": "Ping",
+        "description": "Verifica se a API está **online e respondendo**. Útil como heartbeat.",
+        "tags": [
+          "Utilitários"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": null\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    "ok"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/SetSenha": {
+      "post": {
+        "operationId": "setSenha",
+        "summary": "SetSenha",
+        "description": "Define uma **senha alfanumérica** para o cliente identificar-se ao acessar o SADI Online.\n\n**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).",
+        "tags": [
+          "Utilitários"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "cnpj": {
+                    "type": "string",
+                    "description": "CNPJ do cliente"
+                  },
+                  "senha": {
+                    "type": "string",
+                    "description": "Senha alfanumérica"
+                  }
+                },
+                "required": [
+                  "cnpj",
+                  "senha"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetLojas": {
+      "post": {
+        "operationId": "getLojas",
+        "summary": "GetLojas",
+        "description": "Retorna dados **cadastrais da farmácia** (nome fantasia, razão social, endereço, contato) para exibição no carregamento inicial da página via QR Code.",
+        "tags": [
+          "Loja"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n",
+                    "example": "{\n  \"cnpj\": \"02695980000110\"\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "loja": {
+                    "cnpj": "02695980000110",
+                    "fantasia": "FARMÁCIA EXEMPLO",
+                    "razao_social": "FARMÁCIA EXEMPLO LTDA",
+                    "ie": "123456789",
+                    "logradouro": "Rua das Flores",
+                    "numero": "100",
+                    "bairro": "Centro",
+                    "cidade": "Belo Horizonte",
+                    "estado": "MG",
+                    "telefone": "3132001234",
+                    "email": "contato@farmacia.com.br",
+                    "ativo": "S"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetRecorrencias": {
+      "post": {
+        "operationId": "getRecorrencias",
+        "summary": "GetRecorrencias",
+        "description": "Retorna **produtos de compra recorrente** do cliente com base no histórico. Considera itens comprados 2 ou mais vezes, calcula o ciclo médio de dias entre compras e indica se o cliente está atrasado para renovar.",
+        "tags": [
+          "SADI Online"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |\n| `quantidade_produtos` | integer | Não | Máximo de produtos retornados |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521,\n    \"quantidade_produtos\": 10\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "recorrencias": [
+                    {
+                      "cod_produto": "4521",
+                      "descricao": "LOSARTANA 50MG 30CPR",
+                      "ultima_compra": "2026-04-18",
+                      "ciclo_dias": 30,
+                      "dias_desde_ultima": 28,
+                      "atrasado": false
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetPedidosProntos": {
+      "post": {
+        "operationId": "getPedidosProntos",
+        "summary": "GetPedidosProntos",
+        "description": "Retorna **pedidos de manipulação** do cliente prontos para retirada. Identifica itens com flag `PEDIDO_MANIPULACAO` não cancelados. Máximo 20 registros, ordem cronológica decrescente.",
+        "tags": [
+          "SADI Online"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "pedidos": [
+                    {
+                      "numero": "8542",
+                      "descricao": "FÓRMULA MAGISTRAL SÉRUM",
+                      "tipo": "MANIPULADO",
+                      "data_previsao": "2026-05-10",
+                      "status": "PRONTO"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetPromocoes": {
+      "post": {
+        "operationId": "getPromocoes",
+        "summary": "GetPromocoes",
+        "description": "Retorna **promoções ativas** da farmácia em duas categorias:\n\n- `gerais` — ofertas de preço com desconto\n- `compra_leva` — promoções do tipo *leve X, pague Y*\n\nApenas produtos com saldo > 0 e dentro do período de validade. Máximo 20 itens por categoria.",
+        "tags": [
+          "SADI Online"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n",
+                    "example": "{\n  \"cnpj\": \"02695980000110\"\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "gerais": [
+                    {
+                      "id": 1234,
+                      "titulo": "DIPIRONA 500MG 20CPR",
+                      "preco_de": 12.5,
+                      "preco_por": 9.9,
+                      "percentual_desconto": 21,
+                      "tipo": "OFERTA",
+                      "validade": "2026-05-31"
+                    }
+                  ],
+                  "compra_leva": [
+                    {
+                      "id": 5678,
+                      "titulo": "Leve 3, Pague 2",
+                      "produto": "PROTETOR SOLAR FPS 60",
+                      "detalhe": "Leve 3 unidades e pague apenas 2",
+                      "validade": "2026-06-30"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetPontos": {
+      "post": {
+        "operationId": "getPontos",
+        "summary": "GetPontos",
+        "description": "Retorna o **saldo de pontos de fidelidade** do cliente e progresso para o próximo prêmio. **Cálculo atual**: 1 ponto a cada R$ 10 em compras efetivadas.",
+        "tags": [
+          "SADI Online"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "string",
+                    "description": "String JSON com `cnpj` e `params`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cod_cliente` | integer | Sim | ID interno do cliente |",
+                    "example": "{\n  \"cnpj\": \"02695980000110\",\n  \"params\": {\n    \"cod_cliente\": 4521\n  }\n}"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": true,
+                  "pontos": {
+                    "saldo": 150,
+                    "proximo_premio_pontos": 1500,
+                    "proximo_premio_descricao": "Vale-desconto R$ 15,00",
+                    "pode_resgatar": false
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
