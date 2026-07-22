@@ -56,6 +56,23 @@ curl -X POST https://sadi.digifarma.com.br/api/Ping \
   -F 'json={"cnpj":"02695980000110","params":null}'
 ```
 
+## Autenticação adicional (opcional) — senha por CNPJ
+
+Se sua integradora quiser uma **segunda camada** de autenticação vinculada ao CNPJ da loja atendida:
+
+1. Chame [`SetSenha`](endpoints/set-senha.md) uma vez para definir uma senha alfanumérica associada ao CNPJ
+2. Nas chamadas subsequentes, envie essa senha no header:
+
+| Header | Obrigatório | Descrição |
+| --- | --- | --- |
+| `x-digifarma-senha` | Não | Senha alfanumérica definida via [`SetSenha`](endpoints/set-senha.md) para o CNPJ atendido |
+
+- Se o header **for enviado e bater** com a senha definida → requisição autenticada.
+- Se **for enviado e não bater** → requisição rejeitada.
+- Se **não for enviado** → autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) já basta.
+
+Essa camada é útil pra integradoras que queiram um segundo fator vinculado ao CNPJ atendido.
+
 ## Erros comuns
 
 | Situação | Sintoma | Solução |

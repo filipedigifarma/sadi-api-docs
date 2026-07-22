@@ -1,6 +1,10 @@
 # SetSenha
 
-Define uma **senha alfanumérica** associada ao CNPJ do cliente, usada em fluxos de autoatendimento onde ele precisa se identificar.
+Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, usada como **camada opcional de autenticação** pela integradora.
+
+Depois de definida, a integradora pode enviar essa senha no header `x-digifarma-senha` nas demais chamadas da API. Se a senha corresponder, a requisição é autenticada; se não corresponder, é rejeitada. Se o header não for enviado, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) já basta.
+
+Essa camada é **opcional** — serve pra integradoras que queiram um segundo fator vinculado ao CNPJ atendido.
 
 **Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).
 
@@ -20,8 +24,8 @@ Envie via `form-data` — campos diretos (sem o wrapper `json`):
 
 | Campo | Tipo | Obrigatório | Descrição |
 | --- | --- | --- | --- |
-| `cnpj` | string | Sim | CNPJ do cliente |
-| `senha` | string | Sim | Senha alfanumérica |
+| `cnpj` | string | Sim | CNPJ da loja para a qual a senha será definida |
+| `senha` | string | Sim | Senha alfanumérica a ser vinculada ao CNPJ |
 
 ## Exemplo de envio
 

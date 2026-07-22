@@ -466,14 +466,21 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
 
     "SetSenha": {
         "descricao": (
-            "Define uma **senha alfanumérica** associada ao CNPJ do cliente, usada em "
-            "fluxos de autoatendimento onde ele precisa se identificar.\n\n"
+            "Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, usada como "
+            "**camada opcional de autenticação** pela integradora.\n\n"
+            "Depois de definida, a integradora pode enviar essa senha no header "
+            "`x-digifarma-senha` nas demais chamadas da API. Se a senha corresponder, a "
+            "requisição é autenticada; se não corresponder, é rejeitada. Se o header não "
+            "for enviado, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) "
+            "já basta.\n\n"
+            "Essa camada é **opcional** — serve pra integradoras que queiram um segundo "
+            "fator vinculado ao CNPJ atendido.\n\n"
             "**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas)."
         ),
         "body_tipo": "form-data-direto",
         "params": [
-            {"campo": "cnpj",  "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "CNPJ do cliente"},
-            {"campo": "senha", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Senha alfanumérica"},
+            {"campo": "cnpj",  "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "CNPJ da loja para a qual a senha será definida"},
+            {"campo": "senha", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Senha alfanumérica a ser vinculada ao CNPJ"},
         ],
         "exemplo_body_raw": "cnpj=02695980000110\nsenha=1234567",
         "exemplo_resposta": {"success": True},

@@ -841,7 +841,7 @@
       "post": {
         "operationId": "setSenha",
         "summary": "SetSenha",
-        "description": "Define uma **senha alfanumérica** associada ao CNPJ do cliente, usada em fluxos de autoatendimento onde ele precisa se identificar.\n\n**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).",
+        "description": "Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, usada como **camada opcional de autenticação** pela integradora.\n\nDepois de definida, a integradora pode enviar essa senha no header `x-digifarma-senha` nas demais chamadas da API. Se a senha corresponder, a requisição é autenticada; se não corresponder, é rejeitada. Se o header não for enviado, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) já basta.\n\nEssa camada é **opcional** — serve pra integradoras que queiram um segundo fator vinculado ao CNPJ atendido.\n\n**Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).",
         "tags": [
           "Utilitários"
         ],
@@ -874,11 +874,11 @@
                 "properties": {
                   "cnpj": {
                     "type": "string",
-                    "description": "CNPJ do cliente"
+                    "description": "CNPJ da loja para a qual a senha será definida"
                   },
                   "senha": {
                     "type": "string",
-                    "description": "Senha alfanumérica"
+                    "description": "Senha alfanumérica a ser vinculada ao CNPJ"
                   }
                 },
                 "required": [
