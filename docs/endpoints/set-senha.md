@@ -1,10 +1,13 @@
 # SetSenha
 
-Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja, funcionando como camada adicional de autenticação da integradora.
+Define uma **senha alfanumérica** vinculada ao CNPJ de uma loja. Recurso **opt-in**, criado a pedido de parceiro que preferia trafegar a própria senha como reforço adicional em cada requisição.
 
-**⚠ Comportamento importante:** a partir do momento em que uma senha é definida para um CNPJ, **todas as chamadas subsequentes da API a esse CNPJ passam a exigir o header `x-digifarma-senha`** com a senha correspondente. Requisições sem o header, ou com valor incorreto, são rejeitadas.
+**Como funciona:**
 
-Usar este endpoint é **opcional** — se você nunca chamar `SetSenha` para um CNPJ, a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) continua bastando. Chame apenas se quiser um segundo fator vinculado ao CNPJ atendido.
+- Se, numa chamada da API, a integradora **enviar** o header `x-digifarma-senha` → a API valida contra a senha definida. Se bater, aprova; se não bater, rejeita.
+- Se **não enviar** o header → a API ignora essa camada e segue com a autenticação padrão (`x-digifarma-user` + `x-digifarma-token`) normalmente.
+
+Ou seja: mesmo depois de definir a senha, você continua livre para chamar as rotas sem o header. A senha só é conferida quando o header aparece — é **decisão da integradora**, chamada a chamada.
 
 **Body enviado como form-data direto** (sem o campo `json` — diferente das demais rotas).
 
