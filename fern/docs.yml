@@ -1,0 +1,28 @@
+instances:
+  - url: documentao-sadi.docs.buildwithfern.com
+
+title: API SADI
+
+navigation:
+  - tab: Guias
+    contents:
+      - page: Introdução
+        path: ../docs/introduction.md
+      - page: Autenticação
+        path: ../docs/authentication.md
+      - page: Formato de requisição
+        path: ../docs/request-format.md
+      - page: Status de venda
+        path: ../docs/status-venda.md
+  - tab: API Reference
+    api: API Reference
+
+colors:
+  accent-primary:
+    dark: "#4A9EFF"
+    light: "#0057D9"
+
+layout:
+  page-width: full
+  content-width: 45rem
+  sidebar-width: 18rem
