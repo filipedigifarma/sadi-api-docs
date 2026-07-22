@@ -44,7 +44,58 @@
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/introduction"
+        "api-reference/introduction",
+        {
+          "group": "Autenticação",
+          "pages": [
+            "api-reference/endpoints/get-token"
+          ]
+        },
+        {
+          "group": "Loja",
+          "pages": [
+            "api-reference/endpoints/get-dados-loja",
+            "api-reference/endpoints/get-lojas"
+          ]
+        },
+        {
+          "group": "Cliente",
+          "pages": [
+            "api-reference/endpoints/inserir-cliente",
+            "api-reference/endpoints/lista-cliente"
+          ]
+        },
+        {
+          "group": "Produto",
+          "pages": [
+            "api-reference/endpoints/lista-produto"
+          ]
+        },
+        {
+          "group": "Vendas",
+          "pages": [
+            "api-reference/endpoints/inserir-pre-venda",
+            "api-reference/endpoints/inserir-venda",
+            "api-reference/endpoints/lista-vendas",
+            "api-reference/endpoints/get-status-venda"
+          ]
+        },
+        {
+          "group": "Utilitários",
+          "pages": [
+            "api-reference/endpoints/ping",
+            "api-reference/endpoints/set-senha"
+          ]
+        },
+        {
+          "group": "SADI Online",
+          "pages": [
+            "api-reference/endpoints/get-recorrencias",
+            "api-reference/endpoints/get-pedidos-prontos",
+            "api-reference/endpoints/get-promocoes",
+            "api-reference/endpoints/get-pontos"
+          ]
+        }
       ]
     }
   ],
