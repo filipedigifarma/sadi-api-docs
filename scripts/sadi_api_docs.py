@@ -313,7 +313,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| --- | --- | --- |\n"
             "| `leve` | integer | Quantidade que o cliente leva |\n"
             "| `pague` | integer | Quantidade que o cliente paga |\n"
-            "| `tipo_preco` | string | `\"V\"` = base é o preço de venda; `\"C\"` = base é o preço de crediário |\n\n"
+            "| `tipo_preco` | string | `\"V\"` = base é o **preço de venda**; `\"P\"` = base é o **preço de promoção** |\n\n"
             "### Cada item em `desconto_escalonado[]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"

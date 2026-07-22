@@ -150,7 +150,7 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 | --- | --- | --- |
 | `leve` | integer | Quantidade que o cliente leva |
 | `pague` | integer | Quantidade que o cliente paga |
-| `tipo_preco` | string | `"V"` = base é o preço de venda; `"C"` = base é o preço de crediário |
+| `tipo_preco` | string | `"V"` = base é o **preço de venda**; `"P"` = base é o **preço de promoção** |
 
 ### Cada item em `desconto_escalonado[]`
 
