@@ -2,7 +2,7 @@
 
 ## ⚠️ Pré-requisitos — leia antes
 
-**Duas coisas precisam estar em ordem antes de você conseguir chamar qualquer rota.** Ambas são solicitadas junto à Digifarma pelo email [contato@digifarma.com.br](mailto:contato@digifarma.com.br) — informe o nome da sua integradora, contato técnico e a lista de CNPJs que pretende atender.
+**Duas coisas precisam estar em ordem antes de você conseguir chamar qualquer rota.** Ambas são solicitadas junto à Digifarma pelo email [filipe@digifarma.com.br](mailto:filipe@digifarma.com.br) — informe o nome da sua integradora, contato técnico e a lista de CNPJs que pretende atender.
 
 ### 1. Usuário de integração (`x-digifarma-user`)
 

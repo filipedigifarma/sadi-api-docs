@@ -50,7 +50,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "expirar.\n\n"
             "**⚠️ Pré-requisitos:**\n\n"
             "- O `x-digifarma-user` precisa ter sido **emitido pela Digifarma** — "
-            "não há auto-cadastro. Solicite via contato@digifarma.com.br.\n"
+            "não há auto-cadastro. Solicite via filipe@digifarma.com.br.\n"
             "- O `cnpj` informado precisa estar **liberado para o seu usuário** na base "
             "da Digifarma. Envie a lista de CNPJs que sua integradora atenderá junto do "
             "pedido do usuário."

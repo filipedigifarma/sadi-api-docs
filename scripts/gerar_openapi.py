@@ -201,7 +201,7 @@ def build_openapi() -> dict[str, Any]:
                 "2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que "
                 "você pretende consultar precisa estar liberado para o seu usuário "
                 "na base da Digifarma.\n\n"
-                "Solicite ambos via **contato@digifarma.com.br** informando o nome "
+                "Solicite ambos via **filipe@digifarma.com.br** informando o nome "
                 "da integradora, contato técnico e a lista de CNPJs a atender."
             ),
             "contact": {
