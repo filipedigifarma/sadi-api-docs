@@ -479,10 +479,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "Cancela uma **pré-venda** previamente registrada via `InserirPreVenda`. "
             "O cancelamento é **lógico** — não devolve saldo de estoque, não mexe em "
             "NFC-e nem em valores de pagamento. É idempotente: chamar novamente sobre "
-            "uma venda já cancelada não gera erro.\n\n"
-            "Efeitos no banco do PDV:\n\n"
-            "- `cab_vendas`: `cancelado = 'S'`, `cartao_fechado = 'N'`\n"
-            "- `item_vendas`: `cancelado = 'S'`, `itemvend_cancelado_cupom = 'S'`"
+            "uma venda já cancelada não gera erro."
         ),
         "params": [
             {"campo": "id_venda", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID da venda a cancelar (deve ser > 0)"},

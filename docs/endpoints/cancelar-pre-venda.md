@@ -2,11 +2,6 @@
 
 Cancela uma **pré-venda** previamente registrada via `InserirPreVenda`. O cancelamento é **lógico** — não devolve saldo de estoque, não mexe em NFC-e nem em valores de pagamento. É idempotente: chamar novamente sobre uma venda já cancelada não gera erro.
 
-Efeitos no banco do PDV:
-
-- `cab_vendas`: `cancelado = 'S'`, `cartao_fechado = 'N'`
-- `item_vendas`: `cancelado = 'S'`, `itemvend_cancelado_cupom = 'S'`
-
 **Método:** `POST`  
 **URL:** `https://sadi.digifarma.com.br/api/CancelarPreVenda`
 
