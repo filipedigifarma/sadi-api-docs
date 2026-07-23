@@ -564,6 +564,86 @@
         }
       }
     },
+    "/CancelarPreVenda": {
+      "post": {
+        "operationId": "cancelarPreVenda",
+        "summary": "CancelarPreVenda",
+        "description": "Cancela uma **pré-venda** previamente registrada via `InserirPreVenda`. O cancelamento é **lógico** — não devolve saldo de estoque, não mexe em NFC-e nem em valores de pagamento. É idempotente: chamar novamente sobre uma venda já cancelada não gera erro.\n\nEfeitos no banco do PDV:\n\n- `cab_vendas`: `cancelado = 'S'`, `cartao_fechado = 'N'`\n- `item_vendas`: `cancelado = 'S'`, `itemvend_cancelado_cupom = 'S'`",
+        "tags": [
+          "Utilitários"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `id_venda` | integer | Sim | ID da venda a cancelar (deve ser > 0) |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "id_venda": 12345
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "id_venda": 12345,
+                      "cancelado": "S"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ListaVendas": {
       "post": {
         "operationId": "listaVendas",

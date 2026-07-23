@@ -69,6 +69,7 @@
           "group": "Vendas",
           "pages": [
             "api-reference/endpoints/inserir-pre-venda",
+            "api-reference/endpoints/cancelar-pre-venda",
             "api-reference/endpoints/lista-vendas",
             "api-reference/endpoints/get-status-venda"
           ]

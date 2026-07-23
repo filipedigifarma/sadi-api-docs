@@ -474,6 +474,34 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
         ],
     },
 
+    "CancelarPreVenda": {
+        "descricao": (
+            "Cancela uma **pré-venda** previamente registrada via `InserirPreVenda`. "
+            "O cancelamento é **lógico** — não devolve saldo de estoque, não mexe em "
+            "NFC-e nem em valores de pagamento. É idempotente: chamar novamente sobre "
+            "uma venda já cancelada não gera erro.\n\n"
+            "Efeitos no banco do PDV:\n\n"
+            "- `cab_vendas`: `cancelado = 'S'`, `cartao_fechado = 'N'`\n"
+            "- `item_vendas`: `cancelado = 'S'`, `itemvend_cancelado_cupom = 'S'`"
+        ),
+        "params": [
+            {"campo": "id_venda", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID da venda a cancelar (deve ser > 0)"},
+        ],
+        "exemplo_body": {
+            "cnpj": "02695980000110",
+            "params": {"id_venda": 12345}
+        },
+        "exemplo_resposta": {
+            "result": [{"success": True, "id_venda": 12345, "cancelado": "S"}]
+        },
+        "notas": [
+            "Venda não encontrada → `{ \"success\": false, \"id_venda\": 12345, \"message\": \"Venda não encontrada\" }`",
+            "`id_venda` ausente → `{ \"success\": false, \"message\": \"id_venda não informado\" }`",
+            "`id_venda` <= 0 → `{ \"success\": false, \"message\": \"id_venda inválido\" }`",
+            "JSON inválido → `{ \"success\": false, \"message\": \"JSON inválido\" }`",
+        ],
+    },
+
     "ListaVendas": {
         "descricao": (
             "Lista vendas com seus itens e pagamentos. Suporta **três modos de consulta** — "

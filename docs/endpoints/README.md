@@ -7,6 +7,7 @@
 | ListaCliente | [lista-cliente.md](lista-cliente.md) |
 | ListaProduto | [lista-produto.md](lista-produto.md) |
 | InserirPreVenda | [inserir-pre-venda.md](inserir-pre-venda.md) |
+| CancelarPreVenda | [cancelar-pre-venda.md](cancelar-pre-venda.md) |
 | ListaVendas | [lista-vendas.md](lista-vendas.md) |
 | GetStatusVenda | [get-status-venda.md](get-status-venda.md) |
 | Ping | [ping.md](ping.md) |
