@@ -502,13 +502,13 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
     "InserirNotaFiscal": {
         "descricao": (
             "Grava uma **nota fiscal de saída** para pedidos de e-commerce.\n\n"
-            "- Grava em `CAB_NOTAS` / `ITEM_NOTAS` / `CAB_NOTAS_FPAGTOS`.\n"
+            "- Registra cabeçalho, itens e formas de pagamento da nota.\n"
             "- Baixa o **estoque** dos produtos vendidos.\n"
-            "- Cria (ou reusa) um registro de destinatário em `FORNECEDORES` a partir do CPF/CNPJ.\n\n"
-            "Esta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no banco. "
+            "- Cria (ou reusa) automaticamente o cadastro do destinatário a partir do CPF/CNPJ.\n\n"
+            "Esta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no Sadi. "
             "A emissão fiscal é responsabilidade de outro módulo que consome a nota gravada.\n\n"
             "**Idempotência:** se `pedido` vier preenchido e já existir uma nota de saída "
-            "com esse `NUMERO_PEDIDO`, a rota retorna o `nota_id` existente em vez de duplicar."
+            "com esse número de pedido, a rota retorna o `nota_id` existente em vez de duplicar."
         ),
         "params_grupos": [
             {
@@ -518,7 +518,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
                 "params": [
                     {"campo": "venda_total",    "tipo": "number", "obrigatorio": "Sim", "default": None,  "descricao": "Valor total da nota"},
                     {"campo": "pedido",         "tipo": "string", "obrigatorio": "Não", "default": '""',  "descricao": "Número do pedido externo (usado para idempotência)"},
-                    {"campo": "origem_venda",   "tipo": "string", "obrigatorio": "Não", "default": None,  "descricao": 'Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa registro em `ORIGEM_NFE`.'},
+                    {"campo": "origem_venda",   "tipo": "string", "obrigatorio": "Não", "default": None,  "descricao": 'Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa automaticamente o cadastro dessa origem.'},
                     {"campo": "vendedor",       "tipo": "string", "obrigatorio": "Não", "default": '"0"', "descricao": "Vendedor responsável pela nota — aceita **ID (numérico)** ou **nome**. Se vier nome, o Sadi resolve pra ID via cadastro."},
                     {"campo": "cfop",           "tipo": "string", "obrigatorio": "Não", "default": None,  "descricao": 'CFOP da nota (ex: `"5102"` intra, `"6108"` inter, consumidor final). Se ausente, o módulo de emissão preenche. Pode ser sobrescrito por item.'},
                     {"campo": "frete",          "tipo": "number", "obrigatorio": "Não", "default": "0",   "descricao": "Valor do frete"},
@@ -624,14 +624,14 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
     "CancelarNotaFiscal": {
         "descricao": (
             "Cancela uma **nota fiscal** previamente registrada via `InserirNotaFiscal`. "
-            "Marca `CAB_NOTAS.CANCELAMENTO='S'` e **devolve o estoque** dos itens "
+            "Marca a nota como cancelada e **devolve o estoque** dos itens "
             "(operação simétrica à baixa feita na inserção).\n\n"
             "Se a nota já foi transmitida à SEFAZ, esta rota **não** faz o cancelamento fiscal — "
             "apenas o cancelamento lógico no PDV. O cancelamento fiscal é responsabilidade "
             "do módulo de emissão."
         ),
         "params": [
-            {"campo": "id_nota", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID da nota a cancelar (CAB_NOTA_ID, deve ser > 0)"},
+            {"campo": "id_nota", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID da nota a cancelar (deve ser > 0). Retornado por `InserirNotaFiscal` em `id_nota`."},
         ],
         "exemplo_body": {
             "cnpj": "02695980000110",

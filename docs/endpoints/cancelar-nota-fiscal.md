@@ -1,6 +1,6 @@
 # CancelarNotaFiscal
 
-Cancela uma **nota fiscal** previamente registrada via `InserirNotaFiscal`. Marca `CAB_NOTAS.CANCELAMENTO='S'` e **devolve o estoque** dos itens (operação simétrica à baixa feita na inserção).
+Cancela uma **nota fiscal** previamente registrada via `InserirNotaFiscal`. Marca a nota como cancelada e **devolve o estoque** dos itens (operação simétrica à baixa feita na inserção).
 
 Se a nota já foi transmitida à SEFAZ, esta rota **não** faz o cancelamento fiscal — apenas o cancelamento lógico no PDV. O cancelamento fiscal é responsabilidade do módulo de emissão.
 
@@ -22,7 +22,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 
 | Campo | Tipo | Obrigatório | Descrição |
 | --- | --- | --- | --- |
-| `id_nota` | integer | Sim | ID da nota a cancelar (CAB_NOTA_ID, deve ser > 0) |
+| `id_nota` | integer | Sim | ID da nota a cancelar (deve ser > 0). Retornado por `InserirNotaFiscal` em `id_nota`. |
 
 ## Exemplo de envio
 

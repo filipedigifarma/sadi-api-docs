@@ -2,13 +2,13 @@
 
 Grava uma **nota fiscal de saída** para pedidos de e-commerce.
 
-- Grava em `CAB_NOTAS` / `ITEM_NOTAS` / `CAB_NOTAS_FPAGTOS`.
+- Registra cabeçalho, itens e formas de pagamento da nota.
 - Baixa o **estoque** dos produtos vendidos.
-- Cria (ou reusa) um registro de destinatário em `FORNECEDORES` a partir do CPF/CNPJ.
+- Cria (ou reusa) automaticamente o cadastro do destinatário a partir do CPF/CNPJ.
 
-Esta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no banco. A emissão fiscal é responsabilidade de outro módulo que consome a nota gravada.
+Esta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no Sadi. A emissão fiscal é responsabilidade de outro módulo que consome a nota gravada.
 
-**Idempotência:** se `pedido` vier preenchido e já existir uma nota de saída com esse `NUMERO_PEDIDO`, a rota retorna o `nota_id` existente em vez de duplicar.
+**Idempotência:** se `pedido` vier preenchido e já existir uma nota de saída com esse número de pedido, a rota retorna o `nota_id` existente em vez de duplicar.
 
 **Método:** `POST`  
 **URL:** `https://sadi.digifarma.com.br/api/InserirNotaFiscal`
@@ -39,7 +39,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 | --- | --- | --- | --- | --- |
 | `venda_total` | number | Sim | — | Valor total da nota |
 | `pedido` | string | Não | "" | Número do pedido externo (usado para idempotência) |
-| `origem_venda` | string | Não | — | Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa registro em `ORIGEM_NFE`. |
+| `origem_venda` | string | Não | — | Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa automaticamente o cadastro dessa origem. |
 | `vendedor` | string | Não | "0" | Vendedor responsável pela nota — aceita **ID (numérico)** ou **nome**. Se vier nome, o Sadi resolve pra ID via cadastro. |
 | `cfop` | string | Não | — | CFOP da nota (ex: `"5102"` intra, `"6108"` inter, consumidor final). Se ausente, o módulo de emissão preenche. Pode ser sobrescrito por item. |
 | `frete` | number | Não | 0 | Valor do frete |
