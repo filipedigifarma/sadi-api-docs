@@ -644,6 +644,213 @@
         }
       }
     },
+    "/InserirNotaFiscal": {
+      "post": {
+        "operationId": "inserirNotaFiscal",
+        "summary": "InserirNotaFiscal",
+        "description": "Grava uma **nota fiscal de saída** para pedidos de e-commerce.\n\n- Grava em `CAB_NOTAS` / `ITEM_NOTAS` / `CAB_NOTAS_FPAGTOS`.\n- Baixa o **estoque** dos produtos vendidos.\n- Cria (ou reusa) um registro de destinatário em `FORNECEDORES` a partir do CPF/CNPJ.\n\nEsta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no banco. A emissão fiscal é responsabilidade de outro módulo que consome a nota gravada.\n\n**Idempotência:** se `pedido` vier preenchido e já existir uma nota de saída com esse `NUMERO_PEDIDO`, a rota retorna o `nota_id` existente em vez de duplicar.",
+        "tags": [
+          "Utilitários"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Estrutura de `params`:**\n\n| Chave | Tipo | Descrição |\n| --- | --- | --- |\n| `venda` | object | Cabeçalho da nota — totais, número do pedido, origem. |\n| `destinatario` | object | Dados fiscais e endereço do destinatário da NF. Traz os campos que a SEFAZ exige. |\n| `venda_item` | array | Itens da nota — um objeto por produto. |\n| `pagamento` | array | Formas de pagamento (opcional). |\n\n**Campos de `venda`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `venda_total` | number | Sim | Valor total da nota |\n| `pedido` | string | Não | Número do pedido externo (usado para idempotência) |\n| `origem_venda` | string | Não | Identificador da origem (ex: `\"ECOMMERCE\"`). Cria/reusa registro em `ORIGEM_NFE`. |\n| `vendedor` | string | Não | Vendedor responsável pela nota — aceita **ID (numérico)** ou **nome**. Se vier nome, o Sadi resolve pra ID via cadastro. |\n| `cfop` | string | Não | CFOP da nota (ex: `\"5102\"` intra, `\"6108\"` inter, consumidor final). Se ausente, o módulo de emissão preenche. Pode ser sobrescrito por item. |\n| `frete` | number | Não | Valor do frete |\n| `venda_desconto` | number | Não | Desconto aplicado |\n\n**Campos de `destinatario`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `cpf_cnpj` | string | Sim | CPF (11 dígitos) ou CNPJ (14 dígitos), só números. |\n| `nome` | string | Sim | Nome do destinatário (PF) ou razão social (PJ). |\n| `ie` | string | Cond. | Inscrição Estadual. Obrigatória para PJ contribuinte de ICMS; use `\"ISENTO\"` para PF ou PJ isento. |\n| `email` | string | Não | E-mail para envio da DANFE. |\n| `end` | string | Sim | Logradouro |\n| `num` | string | Sim | Número |\n| `com` | string | Não | Complemento |\n| `bai` | string | Sim | Bairro |\n| `cid` | string | Sim | Cidade |\n| `cep` | string | Sim | CEP (só dígitos) |\n| `uf` | string | Sim | Estado (sigla) |\n| `tel` | string | Não | Telefone fixo |\n| `cel` | string | Não | Celular |\n\n**Campos de `venda_item`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `p_id` | string | Sim | EAN ou PRODUTO_ID |\n| `qtde` | number | Sim | Quantidade |\n| `prv` | number | Sim | Preço de venda unitário |\n| `desc` | number | Não | Desconto do item |\n| `cfop` | string | Não | CFOP específico do item (sobrescreve `venda.cfop`). Útil quando o item tem ST diferente. |\n\n**Campos de `pagamento`:**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `f` | string | Sim | Nome da forma (ex: `\"dinheiro\"`, `\"cartao\"`) |\n| `a` | string | Sim | Valor pago nesta forma |\n| `n` | string | Não | NSU / número da transação |\n| `i` | string | Não | Número de parcelas |\n| `b` | string | Não | Bandeira (ex: `\"visa credito\"`) |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "venda": {
+                      "venda_total": 77.59,
+                      "pedido": "ECOM-12345",
+                      "origem_venda": "ECOMMERCE",
+                      "vendedor": "1",
+                      "cfop": "5102",
+                      "frete": 0,
+                      "venda_desconto": 0
+                    },
+                    "destinatario": {
+                      "cpf_cnpj": "11658675673",
+                      "nome": "Tamer Sammour",
+                      "ie": "ISENTO",
+                      "email": "tamer@exemplo.com",
+                      "end": "R. Cândido Neiva",
+                      "num": "59",
+                      "com": "Casa De Pedra",
+                      "bai": "Centro",
+                      "cid": "PARACATU",
+                      "cep": "38600000",
+                      "uf": "MG",
+                      "cel": "38999999999"
+                    },
+                    "venda_item": [
+                      {
+                        "p_id": "7891800662122",
+                        "qtde": 2,
+                        "prv": 33.8,
+                        "desc": 0
+                      },
+                      {
+                        "p_id": "7899547500363",
+                        "qtde": 1,
+                        "prv": 9.99,
+                        "desc": 0
+                      }
+                    ],
+                    "pagamento": [
+                      {
+                        "f": "cartao",
+                        "a": "77.59",
+                        "n": "123456",
+                        "i": "1",
+                        "b": "visa credito"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "id_nota": 45678,
+                      "numero_nota_fiscal": "12345",
+                      "id_destinatario": 1234,
+                      "numero_pedido": "ECOM-12345"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CancelarNotaFiscal": {
+      "post": {
+        "operationId": "cancelarNotaFiscal",
+        "summary": "CancelarNotaFiscal",
+        "description": "Cancela uma **nota fiscal** previamente registrada via `InserirNotaFiscal`. Marca `CAB_NOTAS.CANCELAMENTO='S'` e **devolve o estoque** dos itens (operação simétrica à baixa feita na inserção).\n\nSe a nota já foi transmitida à SEFAZ, esta rota **não** faz o cancelamento fiscal — apenas o cancelamento lógico no PDV. O cancelamento fiscal é responsabilidade do módulo de emissão.",
+        "tags": [
+          "Utilitários"
+        ],
+        "parameters": [
+          {
+            "name": "x-digifarma-user",
+            "in": "header",
+            "required": true,
+            "description": "Usuário fornecido pela Digifarma",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-digifarma-token",
+            "in": "header",
+            "required": true,
+            "description": "Token obtido via `GetToken`",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "json"
+                ],
+                "properties": {
+                  "json": {
+                    "type": "object",
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `id_nota` | integer | Sim | ID da nota a cancelar (CAB_NOTA_ID, deve ser > 0) |"
+                  }
+                }
+              },
+              "encoding": {
+                "json": {
+                  "contentType": "application/json"
+                }
+              },
+              "example": {
+                "json": {
+                  "cnpj": "02695980000110",
+                  "params": {
+                    "id_nota": 45678
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sucesso",
+            "content": {
+              "application/json": {
+                "example": {
+                  "result": [
+                    {
+                      "success": true,
+                      "id_nota": 45678,
+                      "cancelado": "S"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ListaVendas": {
       "post": {
         "operationId": "listaVendas",

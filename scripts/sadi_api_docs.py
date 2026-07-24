@@ -499,6 +499,155 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
         ],
     },
 
+    "InserirNotaFiscal": {
+        "descricao": (
+            "Grava uma **nota fiscal de saída** para pedidos de e-commerce.\n\n"
+            "- Grava em `CAB_NOTAS` / `ITEM_NOTAS` / `CAB_NOTAS_FPAGTOS`.\n"
+            "- Baixa o **estoque** dos produtos vendidos.\n"
+            "- Cria (ou reusa) um registro de destinatário em `FORNECEDORES` a partir do CPF/CNPJ.\n\n"
+            "Esta rota **não emite** NFC-e/NF-e via SEFAZ — apenas grava a nota no banco. "
+            "A emissão fiscal é responsabilidade de outro módulo que consome a nota gravada.\n\n"
+            "**Idempotência:** se `pedido` vier preenchido e já existir uma nota de saída "
+            "com esse `NUMERO_PEDIDO`, a rota retorna o `nota_id` existente em vez de duplicar."
+        ),
+        "params_grupos": [
+            {
+                "nome": "venda",
+                "tipo": "object",
+                "descricao": "Cabeçalho da nota — totais, número do pedido, origem.",
+                "params": [
+                    {"campo": "venda_total",    "tipo": "number", "obrigatorio": "Sim", "default": None,  "descricao": "Valor total da nota"},
+                    {"campo": "pedido",         "tipo": "string", "obrigatorio": "Não", "default": '""',  "descricao": "Número do pedido externo (usado para idempotência)"},
+                    {"campo": "origem_venda",   "tipo": "string", "obrigatorio": "Não", "default": None,  "descricao": 'Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa registro em `ORIGEM_NFE`.'},
+                    {"campo": "vendedor",       "tipo": "string", "obrigatorio": "Não", "default": '"0"', "descricao": "Vendedor responsável pela nota — aceita **ID (numérico)** ou **nome**. Se vier nome, o Sadi resolve pra ID via cadastro."},
+                    {"campo": "cfop",           "tipo": "string", "obrigatorio": "Não", "default": None,  "descricao": 'CFOP da nota (ex: `"5102"` intra, `"6108"` inter, consumidor final). Se ausente, o módulo de emissão preenche. Pode ser sobrescrito por item.'},
+                    {"campo": "frete",          "tipo": "number", "obrigatorio": "Não", "default": "0",   "descricao": "Valor do frete"},
+                    {"campo": "venda_desconto", "tipo": "number", "obrigatorio": "Não", "default": "0",   "descricao": "Desconto aplicado"},
+                ],
+            },
+            {
+                "nome": "destinatario",
+                "tipo": "object",
+                "descricao": "Dados fiscais e endereço do destinatário da NF. Traz os campos que a SEFAZ exige.",
+                "params": [
+                    {"campo": "cpf_cnpj", "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "CPF (11 dígitos) ou CNPJ (14 dígitos), só números."},
+                    {"campo": "nome",     "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Nome do destinatário (PF) ou razão social (PJ)."},
+                    {"campo": "ie",       "tipo": "string", "obrigatorio": "Cond.", "default": None, "descricao": 'Inscrição Estadual. Obrigatória para PJ contribuinte de ICMS; use `"ISENTO"` para PF ou PJ isento.'},
+                    {"campo": "email",    "tipo": "string", "obrigatorio": "Não",   "default": None, "descricao": "E-mail para envio da DANFE."},
+                    {"campo": "end",      "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Logradouro"},
+                    {"campo": "num",      "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Número"},
+                    {"campo": "com",      "tipo": "string", "obrigatorio": "Não",   "default": None, "descricao": "Complemento"},
+                    {"campo": "bai",      "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Bairro"},
+                    {"campo": "cid",      "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Cidade"},
+                    {"campo": "cep",      "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "CEP (só dígitos)"},
+                    {"campo": "uf",       "tipo": "string", "obrigatorio": "Sim",   "default": None, "descricao": "Estado (sigla)"},
+                    {"campo": "tel",      "tipo": "string", "obrigatorio": "Não",   "default": None, "descricao": "Telefone fixo"},
+                    {"campo": "cel",      "tipo": "string", "obrigatorio": "Não",   "default": None, "descricao": "Celular"},
+                ],
+            },
+            {
+                "nome": "venda_item",
+                "tipo": "array",
+                "descricao": "Itens da nota — um objeto por produto.",
+                "params": [
+                    {"campo": "p_id", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "EAN ou PRODUTO_ID"},
+                    {"campo": "qtde", "tipo": "number", "obrigatorio": "Sim", "default": None, "descricao": "Quantidade"},
+                    {"campo": "prv",  "tipo": "number", "obrigatorio": "Sim", "default": None, "descricao": "Preço de venda unitário"},
+                    {"campo": "desc", "tipo": "number", "obrigatorio": "Não", "default": "0",  "descricao": "Desconto do item"},
+                    {"campo": "cfop", "tipo": "string", "obrigatorio": "Não", "default": None, "descricao": "CFOP específico do item (sobrescreve `venda.cfop`). Útil quando o item tem ST diferente."},
+                ],
+            },
+            {
+                "nome": "pagamento",
+                "tipo": "array",
+                "descricao": "Formas de pagamento (opcional).",
+                "params": [
+                    {"campo": "f", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": 'Nome da forma (ex: `"dinheiro"`, `"cartao"`)'},
+                    {"campo": "a", "tipo": "string", "obrigatorio": "Sim", "default": None, "descricao": "Valor pago nesta forma"},
+                    {"campo": "n", "tipo": "string", "obrigatorio": "Não", "default": '""', "descricao": "NSU / número da transação"},
+                    {"campo": "i", "tipo": "string", "obrigatorio": "Não", "default": '"1"',"descricao": "Número de parcelas"},
+                    {"campo": "b", "tipo": "string", "obrigatorio": "Não", "default": '""', "descricao": 'Bandeira (ex: `"visa credito"`)'},
+                ],
+            },
+        ],
+        "exemplo_body": {
+            "cnpj": "02695980000110",
+            "params": {
+                "venda": {
+                    "venda_total": 77.59,
+                    "pedido": "ECOM-12345",
+                    "origem_venda": "ECOMMERCE",
+                    "vendedor": "1",
+                    "cfop": "5102",
+                    "frete": 0,
+                    "venda_desconto": 0,
+                },
+                "destinatario": {
+                    "cpf_cnpj": "11658675673",
+                    "nome": "Tamer Sammour",
+                    "ie": "ISENTO",
+                    "email": "tamer@exemplo.com",
+                    "end": "R. Cândido Neiva", "num": "59",
+                    "com": "Casa De Pedra",
+                    "bai": "Centro", "cid": "PARACATU",
+                    "cep": "38600000", "uf": "MG",
+                    "cel": "38999999999",
+                },
+                "venda_item": [
+                    {"p_id": "7891800662122", "qtde": 2, "prv": 33.8, "desc": 0},
+                    {"p_id": "7899547500363", "qtde": 1, "prv": 9.99, "desc": 0},
+                ],
+                "pagamento": [{"f": "cartao", "a": "77.59", "n": "123456", "i": "1", "b": "visa credito"}],
+            }
+        },
+        "exemplo_resposta": {
+            "result": [{
+                "success": True,
+                "id_nota": 45678,
+                "numero_nota_fiscal": "12345",
+                "id_destinatario": 1234,
+                "numero_pedido": "ECOM-12345",
+            }]
+        },
+        "notas": [
+            "`numero_nota_fiscal` é o número fiscal sequencial da NF de saída (gerado no momento da gravação). Fica alocado desde já — numeração fiscal brasileira não pode ser reusada.",
+            "`id_destinatario` é o ID interno do destinatário nos cadastros do PDV.",
+            "**CFOP/CST/CSOSN preenchidos automaticamente**: o PDV usa a config fiscal da loja + tributação de cada produto, compara UF do destinatário com UF da loja (`dentro`/`fora`) e aplica CST ou CSOSN conforme o regime tributário. Se `venda.cfop` ou `venda_item[].cfop` vierem no payload, sobrescrevem o CFOP calculado.",
+            "`destinatario.cpf_cnpj` ausente → `{ \"success\": false, \"message\": \"cpf_cnpj do destinatario obrigatorio para emissao de nota fiscal\" }`",
+            "Produto não localizado → `{ \"success\": false, \"message\": \"Produto nao encontrado: <p_id>\" }`",
+            "**Validação de saldo:** se a loja não permite venda com estoque negativo, a rota rejeita quando algum produto não tem saldo suficiente, retornando `{ \"success\": false, \"message\": \"Produto sem saldo suficiente\", \"produtos_sem_saldo\": [{ \"produto_id\": 123, \"produto\": \"NIMESULIDA 100MG\", \"saldo\": 3, \"solicitado\": 10 }] }`.",
+            "Idempotência: se `pedido` já existir em outra nota, retorna a nota existente sem erro (`success: true`) — incluindo o `numero_nota_fiscal` já atribuído.",
+            "A rota **não transmite** NFC-e/NF-e à SEFAZ — a transmissão fiscal é feita por outro módulo consumindo a nota gravada.",
+        ],
+    },
+
+    "CancelarNotaFiscal": {
+        "descricao": (
+            "Cancela uma **nota fiscal** previamente registrada via `InserirNotaFiscal`. "
+            "Marca `CAB_NOTAS.CANCELAMENTO='S'` e **devolve o estoque** dos itens "
+            "(operação simétrica à baixa feita na inserção).\n\n"
+            "Se a nota já foi transmitida à SEFAZ, esta rota **não** faz o cancelamento fiscal — "
+            "apenas o cancelamento lógico no PDV. O cancelamento fiscal é responsabilidade "
+            "do módulo de emissão."
+        ),
+        "params": [
+            {"campo": "id_nota", "tipo": "integer", "obrigatorio": "Sim", "default": None, "descricao": "ID da nota a cancelar (CAB_NOTA_ID, deve ser > 0)"},
+        ],
+        "exemplo_body": {
+            "cnpj": "02695980000110",
+            "params": {"id_nota": 45678}
+        },
+        "exemplo_resposta": {
+            "result": [{"success": True, "id_nota": 45678, "cancelado": "S"}]
+        },
+        "notas": [
+            "Nota não encontrada → `{ \"success\": false, \"id_nota\": 45678, \"message\": \"Nota nao encontrada\" }`",
+            "`id_nota` ausente → `{ \"success\": false, \"message\": \"id_nota nao informado\" }`",
+            "`id_nota` <= 0 → `{ \"success\": false, \"message\": \"id_nota invalido\" }`",
+            "O estoque dos itens é **devolvido** automaticamente (simétrico ao baixado na inserção).",
+        ],
+    },
+
     "ListaVendas": {
         "descricao": (
             "Lista vendas com seus itens e pagamentos. Suporta **três modos de consulta** — "

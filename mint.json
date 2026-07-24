@@ -70,6 +70,8 @@
           "pages": [
             "api-reference/endpoints/inserir-pre-venda",
             "api-reference/endpoints/cancelar-pre-venda",
+            "api-reference/endpoints/inserir-nota-fiscal",
+            "api-reference/endpoints/cancelar-nota-fiscal",
             "api-reference/endpoints/lista-vendas",
             "api-reference/endpoints/get-status-venda"
           ]

@@ -8,6 +8,8 @@
 | ListaProduto | [lista-produto.md](lista-produto.md) |
 | InserirPreVenda | [inserir-pre-venda.md](inserir-pre-venda.md) |
 | CancelarPreVenda | [cancelar-pre-venda.md](cancelar-pre-venda.md) |
+| InserirNotaFiscal | [inserir-nota-fiscal.md](inserir-nota-fiscal.md) |
+| CancelarNotaFiscal | [cancelar-nota-fiscal.md](cancelar-nota-fiscal.md) |
 | ListaVendas | [lista-vendas.md](lista-vendas.md) |
 | GetStatusVenda | [get-status-venda.md](get-status-venda.md) |
 | Ping | [ping.md](ping.md) |
