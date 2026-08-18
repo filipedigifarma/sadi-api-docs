@@ -1,6 +1,8 @@
 # ListaProduto
 
-Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtros de saldo e integração.
+Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtro de saldo.
+
+A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — listar produtos já traz tudo. Se quiser **somente os kits**, envie `"apenas_kits": true`.
 
 **Método:** `POST`  
 **URL:** `https://sadi.digifarma.com.br/api/ListaProduto`
@@ -28,9 +30,9 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 | `saldo_positivo` | boolean | Não | false | Se `true`, retorna apenas produtos com saldo > 0 |
 | `ordenar_por` | string | Não | "produto_id" | `"PRODUTO"`, `"COD_BARRAS"`, `"FABRICANTE"`, `"CATEGORIA"`, `"SALDO"`, `"PRECO_VENDA"` ou `"LASTUPDATE"` |
 | `ordem` | string | Não | "ASC" | `"ASC"` ou `"DESC"` |
-| `integracao` | string | Não | "" | Filtra produtos vinculados a uma integração (ex: `"DIGIFARMA"`) |
-| `apenas_integracao` | boolean | Não | false | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |
-| `apenas_kits` | boolean | Não | false | Se `true`, **ignora a busca de produtos** e retorna apenas os **kits** cadastrados, com seus itens. Ver formato em *Modo `apenas_kits`* abaixo. |
+| `apenas_kits` | boolean | Não | false | Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo. |
+| `integracao` | string | Não | "" | **Legado / em desuso.** Filtra produtos vinculados a uma integração. Não afeta os kits. |
+| `apenas_integracao` | boolean | Não | false | **Legado / em desuso.** Se `true`, retorna apenas produtos com vínculo em integração ativa. |
 
 ## Exemplo de envio
 
@@ -47,8 +49,6 @@ Conteúdo do campo `json`:
     "saldo_positivo": false,
     "ordenar_por": "PRODUTO",
     "ordem": "ASC",
-    "integracao": "",
-    "apenas_integracao": false,
     "apenas_kits": false
   }
 }
@@ -101,6 +101,29 @@ Conteúdo do campo `json`:
             }
           ]
         }
+      ],
+      "total_kits": 1,
+      "kits": [
+        {
+          "kit_id": 12,
+          "kit_nome": "KIT GRIPE",
+          "kit_ativo": "S",
+          "kit_saldo": 30,
+          "lastupdate": "10/08/2026 09:12:00",
+          "itens": [
+            {
+              "kit_item_id": 1,
+              "produto_id": 3906,
+              "produto": "BUTILB ESCOP+DIP-G 20-MD",
+              "cod_barras": "7896422507967",
+              "quantidade": 2,
+              "valor": 5.0,
+              "valor_kit": 5.0,
+              "valor_promo": 0,
+              "valor_base": 6.59
+            }
+          ]
+        }
       ]
     }
   ]
@@ -115,8 +138,10 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 
 | Campo | Tipo | Descrição |
 | --- | --- | --- |
-| `total_registros` | integer | Total de registros que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |
+| `total_registros` | integer | Total de **produtos** que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |
 | `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |
+| `total_kits` | integer | Total de **kits** cadastrados. **Sempre presente.** |
+| `kits` | array | Todos os kits do cadastro, com seus itens. **Sempre presente** na listagem de produtos (não é paginado). Ver estrutura abaixo. |
 
 ### Cada item em `produtos[]`
 
@@ -162,54 +187,7 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 | `quantidade` | integer | Quantidade mínima a partir da qual a faixa se aplica |
 | `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |
 
-### Modo `apenas_kits`
-
-Quando o body traz `"apenas_kits": true`, a raiz da resposta **muda de formato**: `produtos` volta vazio e os kits vêm no array `kits`.
-
-```json
-{
-  "result": [
-    {
-      "total_produtos": 0,
-      "total_kits": 1,
-      "produtos": [],
-      "kits": [
-        {
-          "kit_id": 12,
-          "kit_nome": "KIT GRIPE",
-          "kit_ativo": "S",
-          "kit_saldo": 30,
-          "lastupdate": "10/08/2026 09:12:00",
-          "itens": [
-            {
-              "kit_item_id": 1,
-              "produto_id": 3906,
-              "produto": "BUTILB ESCOP+DIP-G 20-MD",
-              "cod_barras": "7896422507967",
-              "quantidade": 2,
-              "valor": 5.00,
-              "valor_kit": 5.00,
-              "valor_promo": 0,
-              "valor_base": 6.59
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}
-```
-
-#### Raiz — `result[0]` (modo `apenas_kits`)
-
-| Campo | Tipo | Descrição |
-| --- | --- | --- |
-| `total_produtos` | integer | Sempre `0` neste modo |
-| `total_kits` | integer | Total de kits retornados |
-| `produtos` | array | Sempre vazio (`[]`) neste modo |
-| `kits` | array | Kits cadastrados. Ver estrutura abaixo. |
-
-#### Cada item em `kits[]`
+### Cada item em `kits[]`
 
 | Campo | Tipo | Descrição |
 | --- | --- | --- |
@@ -220,7 +198,7 @@ Quando o body traz `"apenas_kits": true`, a raiz da resposta **muda de formato**
 | `lastupdate` | string \| null | Data/hora da alteração mais recente entre os produtos do kit — `dd/mm/yyyy hh:mm:ss`. `null` se o kit não tiver itens ativos. |
 | `itens` | array | Produtos que compõem o kit. Ver estrutura abaixo. |
 
-#### Cada item em `kits[].itens[]`
+### Cada item em `kits[].itens[]`
 
 | Campo | Tipo | Descrição |
 | --- | --- | --- |
@@ -234,7 +212,12 @@ Quando o body traz `"apenas_kits": true`, a raiz da resposta **muda de formato**
 | `valor_promo` | number | Preço de promoção do produto (`0` se não houver promoção vigente) |
 | `valor_base` | number | Preço de venda base do produto (fora do kit) |
 
+### Modo `apenas_kits`
+
+Com `"apenas_kits": true` a rota **não consulta produtos** e a raiz muda levemente: `produtos` vem vazio (`[]`) e o total de produtos aparece como `total_produtos` (sempre `0`) em vez de `total_registros`. Os arrays `kits` / `total_kits` seguem o **mesmo formato** descrito acima.
+
 ## Observações
 
-- Para listar os **kits** cadastrados, envie `"apenas_kits": true`. A resposta muda de formato (ver seção *Modo `apenas_kits`*) e traz todos os kits direto do cadastro, com seus itens. Sem esse campo, a rota retorna apenas produtos — comportamento padrão preservado.
-- Os filtros `integracao` / `apenas_integracao` são **legados** (kits vinculados a uma integração) e estão em desuso. Para kits, prefira `apenas_kits`.
+- Os `kits` **sempre acompanham** a listagem de produtos — não é preciso pedir. Use `"apenas_kits": true` apenas quando quiser **exclusivamente os kits** (sem trafegar os produtos).
+- O array `kits` **não é paginado**: traz todos os kits do cadastro em qualquer página. Já `produtos` respeita `pagina` / `tamanho_pagina`.
+- Os parâmetros `integracao` / `apenas_integracao` são **legados** e estão em desuso; não têm efeito sobre os kits.

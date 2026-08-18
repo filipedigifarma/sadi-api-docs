@@ -239,8 +239,11 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
     "ListaProduto": {
         "descricao": (
             "Consulta o **catálogo de produtos** da loja. Suporta busca por código, "
-            "EAN, nome ou data de atualização, com paginação, ordenação e filtros de "
-            "saldo e integração."
+            "EAN, nome ou data de atualização, com paginação, ordenação e filtro de "
+            "saldo.\n\n"
+            "A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — "
+            "listar produtos já traz tudo. Se quiser **somente os kits**, envie "
+            "`\"apenas_kits\": true`."
         ),
         "params": [
             {"campo": "tipo_consulta",    "tipo": "string",  "obrigatorio": "Sim", "default": None,          "descricao": '`"COD_INTERNO"`, `"EAN"`, `"NOME"` ou `"DATA"`'},
@@ -250,9 +253,9 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             {"campo": "saldo_positivo",   "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, retorna apenas produtos com saldo > 0"},
             {"campo": "ordenar_por",      "tipo": "string",  "obrigatorio": "Não", "default": '"produto_id"', "descricao": '`"PRODUTO"`, `"COD_BARRAS"`, `"FABRICANTE"`, `"CATEGORIA"`, `"SALDO"`, `"PRECO_VENDA"` ou `"LASTUPDATE"`'},
             {"campo": "ordem",            "tipo": "string",  "obrigatorio": "Não", "default": '"ASC"',       "descricao": '`"ASC"` ou `"DESC"`'},
-            {"campo": "integracao",       "tipo": "string",  "obrigatorio": "Não", "default": '""',          "descricao": 'Filtra produtos vinculados a uma integração (ex: `"DIGIFARMA"`)'},
-            {"campo": "apenas_integracao","tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa"},
-            {"campo": "apenas_kits",      "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, **ignora a busca de produtos** e retorna apenas os **kits** cadastrados, com seus itens. Ver formato em *Modo `apenas_kits`* abaixo."},
+            {"campo": "apenas_kits",      "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo."},
+            {"campo": "integracao",       "tipo": "string",  "obrigatorio": "Não", "default": '""',          "descricao": "**Legado / em desuso.** Filtra produtos vinculados a uma integração. Não afeta os kits."},
+            {"campo": "apenas_integracao","tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "**Legado / em desuso.** Se `true`, retorna apenas produtos com vínculo em integração ativa."},
         ],
         "exemplo_body": {
             "cnpj": "02695980000110",
@@ -264,8 +267,6 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
                 "saldo_positivo": False,
                 "ordenar_por": "PRODUTO",
                 "ordem": "ASC",
-                "integracao": "",
-                "apenas_integracao": False,
                 "apenas_kits": False,
             }
         },
@@ -305,6 +306,25 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
                         {"quantidade": 3, "valor": 9},
                     ],
                 }],
+                "total_kits": 1,
+                "kits": [{
+                    "kit_id": 12,
+                    "kit_nome": "KIT GRIPE",
+                    "kit_ativo": "S",
+                    "kit_saldo": 30,
+                    "lastupdate": "10/08/2026 09:12:00",
+                    "itens": [{
+                        "kit_item_id": 1,
+                        "produto_id": 3906,
+                        "produto": "BUTILB ESCOP+DIP-G 20-MD",
+                        "cod_barras": "7896422507967",
+                        "quantidade": 2,
+                        "valor": 5.00,
+                        "valor_kit": 5.00,
+                        "valor_promo": 0,
+                        "valor_base": 6.59,
+                    }],
+                }],
             }],
         },
         "descricao_resposta": (
@@ -313,8 +333,10 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "### Nível raiz — `result[0]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
-            "| `total_registros` | integer | Total de registros que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |\n"
-            "| `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |\n\n"
+            "| `total_registros` | integer | Total de **produtos** que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |\n"
+            "| `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |\n"
+            "| `total_kits` | integer | Total de **kits** cadastrados. **Sempre presente.** |\n"
+            "| `kits` | array | Todos os kits do cadastro, com seus itens. **Sempre presente** na listagem de produtos (não é paginado). Ver estrutura abaixo. |\n\n"
             "### Cada item em `produtos[]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
@@ -353,50 +375,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| --- | --- | --- |\n"
             "| `quantidade` | integer | Quantidade mínima a partir da qual a faixa se aplica |\n"
             "| `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |\n\n"
-            "### Modo `apenas_kits`\n\n"
-            "Quando o body traz `\"apenas_kits\": true`, a raiz da resposta **muda de formato**: "
-            "`produtos` volta vazio e os kits vêm no array `kits`.\n\n"
-            "```json\n"
-            "{\n"
-            "  \"result\": [\n"
-            "    {\n"
-            "      \"total_produtos\": 0,\n"
-            "      \"total_kits\": 1,\n"
-            "      \"produtos\": [],\n"
-            "      \"kits\": [\n"
-            "        {\n"
-            "          \"kit_id\": 12,\n"
-            "          \"kit_nome\": \"KIT GRIPE\",\n"
-            "          \"kit_ativo\": \"S\",\n"
-            "          \"kit_saldo\": 30,\n"
-            "          \"lastupdate\": \"10/08/2026 09:12:00\",\n"
-            "          \"itens\": [\n"
-            "            {\n"
-            "              \"kit_item_id\": 1,\n"
-            "              \"produto_id\": 3906,\n"
-            "              \"produto\": \"BUTILB ESCOP+DIP-G 20-MD\",\n"
-            "              \"cod_barras\": \"7896422507967\",\n"
-            "              \"quantidade\": 2,\n"
-            "              \"valor\": 5.00,\n"
-            "              \"valor_kit\": 5.00,\n"
-            "              \"valor_promo\": 0,\n"
-            "              \"valor_base\": 6.59\n"
-            "            }\n"
-            "          ]\n"
-            "        }\n"
-            "      ]\n"
-            "    }\n"
-            "  ]\n"
-            "}\n"
-            "```\n\n"
-            "#### Raiz — `result[0]` (modo `apenas_kits`)\n\n"
-            "| Campo | Tipo | Descrição |\n"
-            "| --- | --- | --- |\n"
-            "| `total_produtos` | integer | Sempre `0` neste modo |\n"
-            "| `total_kits` | integer | Total de kits retornados |\n"
-            "| `produtos` | array | Sempre vazio (`[]`) neste modo |\n"
-            "| `kits` | array | Kits cadastrados. Ver estrutura abaixo. |\n\n"
-            "#### Cada item em `kits[]`\n\n"
+            "### Cada item em `kits[]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
             "| `kit_id` | integer | ID interno do kit |\n"
@@ -405,7 +384,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| `kit_saldo` | number | Saldo do kit |\n"
             "| `lastupdate` | string \\| null | Data/hora da alteração mais recente entre os produtos do kit — `dd/mm/yyyy hh:mm:ss`. `null` se o kit não tiver itens ativos. |\n"
             "| `itens` | array | Produtos que compõem o kit. Ver estrutura abaixo. |\n\n"
-            "#### Cada item em `kits[].itens[]`\n\n"
+            "### Cada item em `kits[].itens[]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
             "| `kit_item_id` | integer | ID do item dentro do kit |\n"
@@ -416,15 +395,21 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| `valor` | number | Valor do item praticado **dentro do kit** |\n"
             "| `valor_kit` | number | Igual a `valor` — preço do item no kit |\n"
             "| `valor_promo` | number | Preço de promoção do produto (`0` se não houver promoção vigente) |\n"
-            "| `valor_base` | number | Preço de venda base do produto (fora do kit) |\n"
+            "| `valor_base` | number | Preço de venda base do produto (fora do kit) |\n\n"
+            "### Modo `apenas_kits`\n\n"
+            "Com `\"apenas_kits\": true` a rota **não consulta produtos** e a raiz muda "
+            "levemente: `produtos` vem vazio (`[]`) e o total de produtos aparece como "
+            "`total_produtos` (sempre `0`) em vez de `total_registros`. Os arrays `kits` / "
+            "`total_kits` seguem o **mesmo formato** descrito acima.\n"
         ),
         "notas": [
-            "Para listar os **kits** cadastrados, envie `\"apenas_kits\": true`. A resposta "
-            "muda de formato (ver seção *Modo `apenas_kits`*) e traz todos os kits direto "
-            "do cadastro, com seus itens. Sem esse campo, a rota retorna apenas produtos — "
-            "comportamento padrão preservado.",
-            "Os filtros `integracao` / `apenas_integracao` são **legados** (kits vinculados "
-            "a uma integração) e estão em desuso. Para kits, prefira `apenas_kits`.",
+            "Os `kits` **sempre acompanham** a listagem de produtos — não é preciso pedir. "
+            "Use `\"apenas_kits\": true` apenas quando quiser **exclusivamente os kits** "
+            "(sem trafegar os produtos).",
+            "O array `kits` **não é paginado**: traz todos os kits do cadastro em qualquer "
+            "página. Já `produtos` respeita `pagina` / `tamanho_pagina`.",
+            "Os parâmetros `integracao` / `apenas_integracao` são **legados** e estão em "
+            "desuso; não têm efeito sobre os kits.",
         ],
     },
 
