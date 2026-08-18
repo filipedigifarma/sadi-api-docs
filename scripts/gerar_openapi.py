@@ -71,6 +71,19 @@ def _headers(cfg: dict[str, Any]) -> list[dict[str, Any]]:
             "description": "Token obtido via `GetToken`",
             "schema": {"type": "string"},
         })
+    # User-Agent — recomendado em todas as rotas (boa prática obrigatória).
+    params.append({
+        "name": "User-Agent",
+        "in": "header",
+        "required": False,
+        "description": (
+            "Identificação da sua integradora — use o **nome da sua empresa** "
+            "(ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a "
+            "identificar a origem das chamadas e a dar suporte. Evite o User-Agent "
+            "genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`)."
+        ),
+        "schema": {"type": "string", "example": "MinhaEmpresa/1.0"},
+    })
     return params
 
 
@@ -217,7 +230,14 @@ def build_openapi() -> dict[str, Any]:
                 "você pretende consultar precisa estar liberado para o seu usuário "
                 "na base da Digifarma.\n\n"
                 "Solicite ambos via **filipe@digifarma.com.br** informando o nome "
-                "da integradora, contato técnico e a lista de CNPJs a atender."
+                "da integradora, contato técnico e a lista de CNPJs a atender.\n\n"
+                "## Boas práticas — `User-Agent`\n\n"
+                "Envie em **todas** as requisições um header `User-Agent` "
+                "personalizado com o **nome da sua empresa/integradora** "
+                "(ex: `MinhaEmpresa/1.0`). Isso é essencial para que a Digifarma "
+                "identifique a origem das chamadas, dê suporte e diagnostique "
+                "problemas por integradora. Evite o User-Agent genérico da sua "
+                "biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`, `axios`)."
             ),
             "contact": {
                 "name": "Digifarma",

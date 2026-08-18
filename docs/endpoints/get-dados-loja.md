@@ -11,6 +11,7 @@ Retorna os **dados fiscais e cadastrais** da loja vinculada ao CNPJ informado. U
 | --- | --- | --- |
 | `x-digifarma-user` | Sim | Usuário fornecido pela Digifarma |
 | `x-digifarma-token` | Sim | Token obtido via `GetToken` |
+| `User-Agent` | Recomendado | Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`). |
 
 ## Body
 

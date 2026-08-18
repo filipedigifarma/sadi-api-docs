@@ -17,6 +17,7 @@ O token tem validade limitada. Renove chamando este endpoint novamente quando ex
 | Header | Obrigatório | Descrição |
 | --- | --- | --- |
 | `x-digifarma-user` | Sim | Usuário fornecido pela Digifarma |
+| `User-Agent` | Recomendado | Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`). |
 
 ## Body
 

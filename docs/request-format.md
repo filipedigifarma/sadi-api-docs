@@ -41,6 +41,7 @@ Campo `json`:
 curl -X POST https://sadi.digifarma.com.br/api/ListaCliente \
   -H "x-digifarma-user: SEU_USUARIO" \
   -H "x-digifarma-token: SEU_TOKEN" \
+  -H "User-Agent: MinhaEmpresa/1.0" \
   -F 'json={"cnpj":"02695980000110","params":{"tipo_consulta":"CPF","parametro":"12345678909","pagina":1,"tamanho_pagina":20}}'
 ```
 
@@ -49,8 +50,12 @@ Campos diretos:
 ```bash
 curl -X POST https://sadi.digifarma.com.br/api/GetToken \
   -H "x-digifarma-user: SEU_USUARIO" \
+  -H "User-Agent: MinhaEmpresa/1.0" \
   -F "cnpj=02695980000110"
 ```
+
+> **Boa prática obrigatória:** envie sempre um header `User-Agent` com o nome da
+> sua integradora (ex: `MinhaEmpresa/1.0`). Veja [Autenticação](authentication.md#header-recomendado--user-agent-boa-prática-obrigatória).
 
 ## Resposta
 

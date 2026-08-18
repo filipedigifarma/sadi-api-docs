@@ -20,6 +20,13 @@ Todas as rotas (exceto `GetToken` e `SetSenha`) exigem os headers:
 
 Veja [Autenticação](/docs/authentication) para o fluxo completo e os pré-requisitos de credenciais.
 
+## Boa prática obrigatória — `User-Agent`
+
+Envie em **todas** as requisições um header `User-Agent` personalizado com o
+**nome da sua empresa/integradora** (ex: `MinhaEmpresa/1.0`). É essencial para
+identificarmos a origem das chamadas e darmos suporte. Evite o User-Agent
+genérico da sua biblioteca HTTP (`PostmanRuntime`, `python-requests`, `axios`).
+
 ## Como usar essa referência
 
 - **Menu à esquerda** — endpoints agrupados por área (Autenticação, Loja, Cliente, Produto, Vendas, Utilitários)

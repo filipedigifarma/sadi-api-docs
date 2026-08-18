@@ -36,6 +36,22 @@ HEADERS_PADRAO: list[dict[str, Any]] = [
 ]
 
 
+# Header recomendado em TODAS as rotas (inclusive GetToken/SetSenha).
+# Não bloqueia a chamada se ausente, mas é uma boa prática obrigatória para
+# integradores: permite à Digifarma identificar a origem das requisições,
+# dar suporte e diagnosticar problemas por integradora.
+HEADER_USER_AGENT: dict[str, Any] = {
+    "nome": "User-Agent",
+    "obrigatorio": "Recomendado",
+    "descricao": (
+        "Identificação da sua integradora — use o **nome da sua empresa** "
+        "(ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a "
+        "identificar a origem das chamadas e a dar suporte. Evite o User-Agent "
+        "genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`)."
+    ),
+}
+
+
 # Cada chave é o nome do endpoint (tem que bater com o `name` do item no Postman collection).
 ENDPOINTS: dict[str, dict[str, Any]] = {
 
@@ -236,6 +252,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             {"campo": "ordem",            "tipo": "string",  "obrigatorio": "Não", "default": '"ASC"',       "descricao": '`"ASC"` ou `"DESC"`'},
             {"campo": "integracao",       "tipo": "string",  "obrigatorio": "Não", "default": '""',          "descricao": 'Filtra produtos vinculados a uma integração (ex: `"DIGIFARMA"`)'},
             {"campo": "apenas_integracao","tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa"},
+            {"campo": "apenas_kits",      "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, **ignora a busca de produtos** e retorna apenas os **kits** cadastrados, com seus itens. Ver formato em *Modo `apenas_kits`* abaixo."},
         ],
         "exemplo_body": {
             "cnpj": "02695980000110",
@@ -249,6 +266,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
                 "ordem": "ASC",
                 "integracao": "",
                 "apenas_integracao": False,
+                "apenas_kits": False,
             }
         },
         "exemplo_resposta": {
@@ -334,11 +352,79 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
             "| `quantidade` | integer | Quantidade mínima a partir da qual a faixa se aplica |\n"
-            "| `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |\n"
+            "| `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |\n\n"
+            "### Modo `apenas_kits`\n\n"
+            "Quando o body traz `\"apenas_kits\": true`, a raiz da resposta **muda de formato**: "
+            "`produtos` volta vazio e os kits vêm no array `kits`.\n\n"
+            "```json\n"
+            "{\n"
+            "  \"result\": [\n"
+            "    {\n"
+            "      \"total_produtos\": 0,\n"
+            "      \"total_kits\": 1,\n"
+            "      \"produtos\": [],\n"
+            "      \"kits\": [\n"
+            "        {\n"
+            "          \"kit_id\": 12,\n"
+            "          \"kit_nome\": \"KIT GRIPE\",\n"
+            "          \"kit_ativo\": \"S\",\n"
+            "          \"kit_saldo\": 30,\n"
+            "          \"lastupdate\": \"10/08/2026 09:12:00\",\n"
+            "          \"itens\": [\n"
+            "            {\n"
+            "              \"kit_item_id\": 1,\n"
+            "              \"produto_id\": 3906,\n"
+            "              \"produto\": \"BUTILB ESCOP+DIP-G 20-MD\",\n"
+            "              \"cod_barras\": \"7896422507967\",\n"
+            "              \"quantidade\": 2,\n"
+            "              \"valor\": 5.00,\n"
+            "              \"valor_kit\": 5.00,\n"
+            "              \"valor_promo\": 0,\n"
+            "              \"valor_base\": 6.59\n"
+            "            }\n"
+            "          ]\n"
+            "        }\n"
+            "      ]\n"
+            "    }\n"
+            "  ]\n"
+            "}\n"
+            "```\n\n"
+            "#### Raiz — `result[0]` (modo `apenas_kits`)\n\n"
+            "| Campo | Tipo | Descrição |\n"
+            "| --- | --- | --- |\n"
+            "| `total_produtos` | integer | Sempre `0` neste modo |\n"
+            "| `total_kits` | integer | Total de kits retornados |\n"
+            "| `produtos` | array | Sempre vazio (`[]`) neste modo |\n"
+            "| `kits` | array | Kits cadastrados. Ver estrutura abaixo. |\n\n"
+            "#### Cada item em `kits[]`\n\n"
+            "| Campo | Tipo | Descrição |\n"
+            "| --- | --- | --- |\n"
+            "| `kit_id` | integer | ID interno do kit |\n"
+            "| `kit_nome` | string | Nome/descrição do kit |\n"
+            "| `kit_ativo` | string | `\"S\"` = ativo, `\"N\"` = inativo |\n"
+            "| `kit_saldo` | number | Saldo do kit |\n"
+            "| `lastupdate` | string \\| null | Data/hora da alteração mais recente entre os produtos do kit — `dd/mm/yyyy hh:mm:ss`. `null` se o kit não tiver itens ativos. |\n"
+            "| `itens` | array | Produtos que compõem o kit. Ver estrutura abaixo. |\n\n"
+            "#### Cada item em `kits[].itens[]`\n\n"
+            "| Campo | Tipo | Descrição |\n"
+            "| --- | --- | --- |\n"
+            "| `kit_item_id` | integer | ID do item dentro do kit |\n"
+            "| `produto_id` | integer | ID interno do produto no SADI |\n"
+            "| `produto` | string | Nome/descrição do produto |\n"
+            "| `cod_barras` | string | EAN/código de barras do produto |\n"
+            "| `quantidade` | number | Quantidade desse produto no kit |\n"
+            "| `valor` | number | Valor do item praticado **dentro do kit** |\n"
+            "| `valor_kit` | number | Igual a `valor` — preço do item no kit |\n"
+            "| `valor_promo` | number | Preço de promoção do produto (`0` se não houver promoção vigente) |\n"
+            "| `valor_base` | number | Preço de venda base do produto (fora do kit) |\n"
         ),
         "notas": [
-            "Quando `integracao` ou `apenas_integracao` é utilizado, a resposta também "
-            "inclui o array `kits` com kits de produtos ativos vinculados à integração.",
+            "Para listar os **kits** cadastrados, envie `\"apenas_kits\": true`. A resposta "
+            "muda de formato (ver seção *Modo `apenas_kits`*) e traz todos os kits direto "
+            "do cadastro, com seus itens. Sem esse campo, a rota retorna apenas produtos — "
+            "comportamento padrão preservado.",
+            "Os filtros `integracao` / `apenas_integracao` são **legados** (kits vinculados "
+            "a uma integração) e estão em desuso. Para kits, prefira `apenas_kits`.",
         ],
     },
 

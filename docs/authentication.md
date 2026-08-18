@@ -29,6 +29,34 @@ A API utiliza autenticação baseada em **token**. O fluxo é:
 | `x-digifarma-user` | Usuário fornecido pela Digifarma |
 | `x-digifarma-token` | Token obtido via [`GetToken`](endpoints/get-token.md) |
 
+## Header recomendado — `User-Agent` (boa prática obrigatória)
+
+Envie em **todas** as chamadas — inclusive `GetToken` — um header `User-Agent`
+personalizado, identificando a sua integradora. Pode ser simplesmente o **nome
+da sua empresa**:
+
+| Header | Descrição |
+| --- | --- |
+| `User-Agent` | Nome da sua integradora/empresa (ex: `MinhaEmpresa/1.0`) |
+
+Por que isso importa para nós — e para você:
+
+- Permite à Digifarma **identificar a origem** de cada requisição e associá-la à sua integradora.
+- Agiliza o **suporte** e o **diagnóstico de problemas** (log e rastreio por integrador).
+- Evita que suas chamadas fiquem misturadas sob User-Agents genéricos de biblioteca
+  (`PostmanRuntime`, `python-requests`, `axios`, etc.).
+
+Não é um bloqueio: a chamada funciona sem ele. Mas tratamos como **boa prática
+obrigatória** — configure uma vez no seu cliente HTTP e esqueça.
+
+```bash
+curl -X POST https://sadi.digifarma.com.br/api/Ping \
+  -H "x-digifarma-user: SEU_USUARIO" \
+  -H "x-digifarma-token: SEU_TOKEN" \
+  -H "User-Agent: MinhaEmpresa/1.0" \
+  -F 'json={"cnpj":"02695980000110","params":null}'
+```
+
 ## Exemplo
 
 Obtendo o token:

@@ -16,7 +16,7 @@ import re
 import unicodedata
 from typing import Any
 
-from sadi_api_docs import ENDPOINTS, HEADERS_PADRAO
+from sadi_api_docs import ENDPOINTS, HEADERS_PADRAO, HEADER_USER_AGENT
 
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,7 +49,9 @@ def md_tabela(cabecalho: list[str], linhas: list[list[str]]) -> str:
 
 
 def headers_do_endpoint(cfg: dict[str, Any]) -> list[dict[str, Any]]:
-    return [HEADERS_PADRAO[0]] if cfg.get("sem_token") else HEADERS_PADRAO
+    base = [HEADERS_PADRAO[0]] if cfg.get("sem_token") else list(HEADERS_PADRAO)
+    # User-Agent é recomendado em todas as rotas.
+    return base + [HEADER_USER_AGENT]
 
 
 def tabela_params(params: list[dict[str, Any]]) -> str:

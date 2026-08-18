@@ -3,7 +3,7 @@
   "info": {
     "title": "API SADI",
     "version": "1.0.0",
-    "description": "API REST do sistema SADI (Digifarma) para integração de parceiros. Consulta de produtos, clientes e vendas, além de registro de pedidos e pré-vendas.\n\n## Pré-requisitos\n\nAntes de conseguir chamar qualquer rota, sua integradora precisa de **duas coisas emitidas pela Digifarma**:\n\n1. **Usuário de integração** — o valor do header `x-digifarma-user` só é válido se emitido pela Digifarma. Não existe auto-cadastro.\n2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que você pretende consultar precisa estar liberado para o seu usuário na base da Digifarma.\n\nSolicite ambos via **filipe@digifarma.com.br** informando o nome da integradora, contato técnico e a lista de CNPJs a atender.",
+    "description": "API REST do sistema SADI (Digifarma) para integração de parceiros. Consulta de produtos, clientes e vendas, além de registro de pedidos e pré-vendas.\n\n## Pré-requisitos\n\nAntes de conseguir chamar qualquer rota, sua integradora precisa de **duas coisas emitidas pela Digifarma**:\n\n1. **Usuário de integração** — o valor do header `x-digifarma-user` só é válido se emitido pela Digifarma. Não existe auto-cadastro.\n2. **Liberação dos CNPJs das lojas** — cada CNPJ de farmácia que você pretende consultar precisa estar liberado para o seu usuário na base da Digifarma.\n\nSolicite ambos via **filipe@digifarma.com.br** informando o nome da integradora, contato técnico e a lista de CNPJs a atender.\n\n## Boas práticas — `User-Agent`\n\nEnvie em **todas** as requisições um header `User-Agent` personalizado com o **nome da sua empresa/integradora** (ex: `MinhaEmpresa/1.0`). Isso é essencial para que a Digifarma identifique a origem das chamadas, dê suporte e diagnostique problemas por integradora. Evite o User-Agent genérico da sua biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`, `axios`).",
     "contact": {
       "name": "Digifarma",
       "url": "https://digifarma.com.br"
@@ -52,6 +52,16 @@
             "description": "Usuário fornecido pela Digifarma",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -113,6 +123,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -201,6 +221,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -331,6 +361,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
+            }
           }
         ],
         "requestBody": {
@@ -345,7 +385,7 @@
                 "properties": {
                   "json": {
                     "type": "object",
-                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `integracao` | string | Não | Filtra produtos vinculados a uma integração (ex: `\"DIGIFARMA\"`) |\n| `apenas_integracao` | boolean | Não | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |"
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `integracao` | string | Não | Filtra produtos vinculados a uma integração (ex: `\"DIGIFARMA\"`) |\n| `apenas_integracao` | boolean | Não | Se `true`, retorna apenas produtos com vínculo em qualquer integração ativa |\n| `apenas_kits` | boolean | Não | Se `true`, **ignora a busca de produtos** e retorna apenas os **kits** cadastrados, com seus itens. Ver formato em *Modo `apenas_kits`* abaixo. |"
                   }
                 }
               },
@@ -366,7 +406,8 @@
                     "ordenar_por": "PRODUTO",
                     "ordem": "ASC",
                     "integracao": "",
-                    "apenas_integracao": false
+                    "apenas_integracao": false,
+                    "apenas_kits": false
                   }
                 }
               }
@@ -375,7 +416,7 @@
         },
         "responses": {
           "200": {
-            "description": "Sucesso\n\n### Campos da resposta\n\nA resposta é sempre um objeto no formato `{ \"result\": [ { ... } ] }` — o array `result` sempre tem um único elemento com os campos abaixo.\n\n### Nível raiz — `result[0]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `total_registros` | integer | Total de registros que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |\n| `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |\n\n### Cada item em `produtos[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `produto_id` | integer | ID interno do produto no SADI |\n| `cod_barras` | string | EAN/código de barras. Vazio se não cadastrado. |\n| `produto` | string | Nome/descrição do produto |\n| `fabricante` | string | Fabricante ou laboratório |\n| `categoria` | string | Categoria comercial (ex: `GENERICOS`, `SIMILARES`, `ETICOS`, `PERFUMARIA`) |\n| `apresentacao` | string | Código de apresentação/embalagem no cadastro |\n| `cod_tributacao` | string | Código de tributação fiscal (ex: `F`, `T`, `I`) |\n| `localizacao` | string | Localização física do produto na loja (gôndola/prateleira). Vazio se não cadastrada. |\n| `localizacao_id` | integer \\| null | ID da localização, se houver |\n| `localizacao_descricao` | string \\| null | Descrição textual da localização |\n| `psicotropico` | string | `\"S\"` = psicotrópico, `\"N\"` = comum |\n| `antimicrobiano` | string | `\"S\"` = antimicrobiano, `\"N\"` = não |\n| `lista` | string | Classificação da lista de controle (ex: `A1`, `A2`, `A3`, `B1`, `B2`, `C1`). Vazio se não aplicável. |\n| `lastupdate` | string | Data/hora da última alteração no cadastro — formato `dd/mm/yyyy hh:mm:ss` |\n| `inicio_promocao` | string | Início da promoção — `dd/mm/yyyy`. Vazio se sem promoção. |\n| `termino_promocao` | string | Fim da promoção — `dd/mm/yyyy`. Vazio se sem promoção. |\n| `saldo` | number | Saldo atual em estoque |\n| `preco_venda` | number | Preço de venda normal (sem promoção) |\n| `preco_crediario` | number | Preço à prazo (crediário). `0` se não aplicável. |\n| `valor_venda` | number | Preço **efetivo** de venda considerando promoção ativa. Igual a `preco_venda` se não houver promoção. |\n| `padrao_comissao` | number | Percentual padrão de comissão do produto |\n| `valor_ult_compra` | number | Custo da última compra do produto (referência de custo) |\n| `leve_x_pague_y` | object \\| null | Promoção **leve X pague Y**, se aplicável. Ver estrutura abaixo. |\n| `desconto_escalonado` | array | Faixas de desconto por quantidade. Vazio se não aplicável. |\n\n### `leve_x_pague_y` (quando não é `null`)\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `leve` | integer | Quantidade que o cliente leva |\n| `pague` | integer | Quantidade que o cliente paga |\n| `tipo_preco` | string | `\"V\"` = base é o **preço de venda**; `\"P\"` = base é o **preço de promoção** |\n\n### Cada item em `desconto_escalonado[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `quantidade` | integer | Quantidade mínima a partir da qual a faixa se aplica |\n| `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |",
+            "description": "Sucesso\n\n### Campos da resposta\n\nA resposta é sempre um objeto no formato `{ \"result\": [ { ... } ] }` — o array `result` sempre tem um único elemento com os campos abaixo.\n\n### Nível raiz — `result[0]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `total_registros` | integer | Total de registros que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |\n| `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |\n\n### Cada item em `produtos[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `produto_id` | integer | ID interno do produto no SADI |\n| `cod_barras` | string | EAN/código de barras. Vazio se não cadastrado. |\n| `produto` | string | Nome/descrição do produto |\n| `fabricante` | string | Fabricante ou laboratório |\n| `categoria` | string | Categoria comercial (ex: `GENERICOS`, `SIMILARES`, `ETICOS`, `PERFUMARIA`) |\n| `apresentacao` | string | Código de apresentação/embalagem no cadastro |\n| `cod_tributacao` | string | Código de tributação fiscal (ex: `F`, `T`, `I`) |\n| `localizacao` | string | Localização física do produto na loja (gôndola/prateleira). Vazio se não cadastrada. |\n| `localizacao_id` | integer \\| null | ID da localização, se houver |\n| `localizacao_descricao` | string \\| null | Descrição textual da localização |\n| `psicotropico` | string | `\"S\"` = psicotrópico, `\"N\"` = comum |\n| `antimicrobiano` | string | `\"S\"` = antimicrobiano, `\"N\"` = não |\n| `lista` | string | Classificação da lista de controle (ex: `A1`, `A2`, `A3`, `B1`, `B2`, `C1`). Vazio se não aplicável. |\n| `lastupdate` | string | Data/hora da última alteração no cadastro — formato `dd/mm/yyyy hh:mm:ss` |\n| `inicio_promocao` | string | Início da promoção — `dd/mm/yyyy`. Vazio se sem promoção. |\n| `termino_promocao` | string | Fim da promoção — `dd/mm/yyyy`. Vazio se sem promoção. |\n| `saldo` | number | Saldo atual em estoque |\n| `preco_venda` | number | Preço de venda normal (sem promoção) |\n| `preco_crediario` | number | Preço à prazo (crediário). `0` se não aplicável. |\n| `valor_venda` | number | Preço **efetivo** de venda considerando promoção ativa. Igual a `preco_venda` se não houver promoção. |\n| `padrao_comissao` | number | Percentual padrão de comissão do produto |\n| `valor_ult_compra` | number | Custo da última compra do produto (referência de custo) |\n| `leve_x_pague_y` | object \\| null | Promoção **leve X pague Y**, se aplicável. Ver estrutura abaixo. |\n| `desconto_escalonado` | array | Faixas de desconto por quantidade. Vazio se não aplicável. |\n\n### `leve_x_pague_y` (quando não é `null`)\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `leve` | integer | Quantidade que o cliente leva |\n| `pague` | integer | Quantidade que o cliente paga |\n| `tipo_preco` | string | `\"V\"` = base é o **preço de venda**; `\"P\"` = base é o **preço de promoção** |\n\n### Cada item em `desconto_escalonado[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `quantidade` | integer | Quantidade mínima a partir da qual a faixa se aplica |\n| `valor` | number | Percentual de desconto (%) aplicado ao atingir a `quantidade` |\n\n### Modo `apenas_kits`\n\nQuando o body traz `\"apenas_kits\": true`, a raiz da resposta **muda de formato**: `produtos` volta vazio e os kits vêm no array `kits`.\n\n```json\n{\n  \"result\": [\n    {\n      \"total_produtos\": 0,\n      \"total_kits\": 1,\n      \"produtos\": [],\n      \"kits\": [\n        {\n          \"kit_id\": 12,\n          \"kit_nome\": \"KIT GRIPE\",\n          \"kit_ativo\": \"S\",\n          \"kit_saldo\": 30,\n          \"lastupdate\": \"10/08/2026 09:12:00\",\n          \"itens\": [\n            {\n              \"kit_item_id\": 1,\n              \"produto_id\": 3906,\n              \"produto\": \"BUTILB ESCOP+DIP-G 20-MD\",\n              \"cod_barras\": \"7896422507967\",\n              \"quantidade\": 2,\n              \"valor\": 5.00,\n              \"valor_kit\": 5.00,\n              \"valor_promo\": 0,\n              \"valor_base\": 6.59\n            }\n          ]\n        }\n      ]\n    }\n  ]\n}\n```\n\n#### Raiz — `result[0]` (modo `apenas_kits`)\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `total_produtos` | integer | Sempre `0` neste modo |\n| `total_kits` | integer | Total de kits retornados |\n| `produtos` | array | Sempre vazio (`[]`) neste modo |\n| `kits` | array | Kits cadastrados. Ver estrutura abaixo. |\n\n#### Cada item em `kits[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `kit_id` | integer | ID interno do kit |\n| `kit_nome` | string | Nome/descrição do kit |\n| `kit_ativo` | string | `\"S\"` = ativo, `\"N\"` = inativo |\n| `kit_saldo` | number | Saldo do kit |\n| `lastupdate` | string \\| null | Data/hora da alteração mais recente entre os produtos do kit — `dd/mm/yyyy hh:mm:ss`. `null` se o kit não tiver itens ativos. |\n| `itens` | array | Produtos que compõem o kit. Ver estrutura abaixo. |\n\n#### Cada item em `kits[].itens[]`\n\n| Campo | Tipo | Descrição |\n| --- | --- | --- |\n| `kit_item_id` | integer | ID do item dentro do kit |\n| `produto_id` | integer | ID interno do produto no SADI |\n| `produto` | string | Nome/descrição do produto |\n| `cod_barras` | string | EAN/código de barras do produto |\n| `quantidade` | number | Quantidade desse produto no kit |\n| `valor` | number | Valor do item praticado **dentro do kit** |\n| `valor_kit` | number | Igual a `valor` — preço do item no kit |\n| `valor_promo` | number | Preço de promoção do produto (`0` se não houver promoção vigente) |\n| `valor_base` | number | Preço de venda base do produto (fora do kit) |",
             "content": {
               "application/json": {
                 "example": {
@@ -457,6 +498,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -590,6 +641,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
+            }
           }
         ],
         "requestBody": {
@@ -669,6 +730,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -797,6 +868,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
+            }
           }
         ],
         "requestBody": {
@@ -876,6 +957,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
@@ -974,6 +1065,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
+            }
           }
         ],
         "requestBody": {
@@ -1052,6 +1153,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
+            }
           }
         ],
         "requestBody": {
@@ -1125,6 +1236,16 @@
             "description": "Token obtido via `GetToken`",
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "User-Agent",
+            "in": "header",
+            "required": false,
+            "description": "Identificação da sua integradora — use o **nome da sua empresa** (ex: `MinhaEmpresa/1.0`). Boa prática **obrigatória**: nos ajuda a identificar a origem das chamadas e a dar suporte. Evite o User-Agent genérico da biblioteca HTTP (ex: `PostmanRuntime`, `python-requests`).",
+            "schema": {
+              "type": "string",
+              "example": "MinhaEmpresa/1.0"
             }
           }
         ],
