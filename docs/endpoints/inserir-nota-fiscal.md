@@ -41,7 +41,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 | `venda_total` | number | Sim | — | Valor total da nota |
 | `pedido` | string | Não | "" | Número do pedido externo (usado para idempotência) |
 | `origem_venda` | string | Não | — | Identificador da origem (ex: `"ECOMMERCE"`). Cria/reusa automaticamente o cadastro dessa origem. |
-| `vendedor` | string | Não | "0" | Vendedor responsável pela nota — aceita **ID (numérico)** ou **nome**. Se vier nome, o Sadi resolve pra ID via cadastro. |
+| `v_id` | string | Não | "0" | Vendedor responsável pela nota — aceita **ID (numérico)** ou **código/nome**. Se não for numérico, o Sadi resolve pra ID via cadastro (mesma regra do `InserirPreVenda`). Padrão `0`. |
 | `cfop` | string | Não | — | CFOP da nota (ex: `"5102"` intra, `"6108"` inter, consumidor final). Se ausente, o módulo de emissão preenche. Pode ser sobrescrito por item. |
 | `frete` | number | Não | 0 | Valor do frete |
 | `venda_desconto` | number | Não | 0 | Desconto aplicado |
@@ -52,7 +52,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 | --- | --- | --- | --- |
 | `cpf_cnpj` | string | Sim | CPF (11 dígitos) ou CNPJ (14 dígitos), só números. |
 | `nome` | string | Sim | Nome do destinatário (PF) ou razão social (PJ). |
-| `ie` | string | Cond. | Inscrição Estadual. Obrigatória para PJ contribuinte de ICMS; use `"ISENTO"` para PF ou PJ isento. |
+| `ie` | string | Cond. | Inscrição Estadual. **Obrigatória para CNPJ** — se ausente, a nota é rejeitada. Para **CPF**, se omitida o Sadi grava `ISENTO` automaticamente. PJ isento pode enviar `"ISENTO"` explicitamente. |
 | `email` | string | Não | E-mail para envio da DANFE. |
 | `end` | string | Sim | Logradouro |
 | `num` | string | Sim | Número |
@@ -78,7 +78,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 
 | Campo | Tipo | Obrigatório | Default | Descrição |
 | --- | --- | --- | --- | --- |
-| `f` | string | Sim | — | Nome da forma (ex: `"dinheiro"`, `"cartao"`) |
+| `f` | string | Sim | — | Nome da forma (ex: `"dinheiro"`, `"cartao"`, `"pix"`, `"boleto"`). Qualquer variante de cartão mapeia para Cartão; forma não reconhecida cai em Dinheiro. |
 | `a` | string | Sim | — | Valor pago nesta forma |
 | `n` | string | Não | "" | NSU / número da transação |
 | `i` | string | Não | "1" | Número de parcelas |
@@ -96,7 +96,7 @@ Conteúdo do campo `json`:
       "venda_total": 77.59,
       "pedido": "ECOM-12345",
       "origem_venda": "ECOMMERCE",
-      "vendedor": "1",
+      "v_id": "1",
       "cfop": "5102",
       "frete": 0,
       "venda_desconto": 0
@@ -164,6 +164,9 @@ Conteúdo do campo `json`:
 - `id_destinatario` é o ID interno do destinatário nos cadastros do PDV.
 - **CFOP/CST/CSOSN preenchidos automaticamente**: o PDV usa a config fiscal da loja + tributação de cada produto, compara UF do destinatário com UF da loja (`dentro`/`fora`) e aplica CST ou CSOSN conforme o regime tributário. Se `venda.cfop` ou `venda_item[].cfop` vierem no payload, sobrescrevem o CFOP calculado.
 - `destinatario.cpf_cnpj` ausente → `{ "success": false, "message": "cpf_cnpj do destinatario obrigatorio para emissao de nota fiscal" }`
+- **IE obrigatória para CNPJ**: destinatário PJ sem `ie` → `{ "success": false, "message": "IE do destinatario obrigatoria para CNPJ — informe o campo \"ie\" no JSON" }`. Para CPF, a ausência de `ie` grava `ISENTO` automaticamente.
+- **Cadastro do destinatário:** se o CPF/CNPJ já existe, o Sadi apenas **completa os campos vazios** (IE, endereço, contato) com o que vier no JSON — nunca sobrescreve dados já preenchidos. Se não existe, cria o cadastro.
+- **Frete rateado:** o `venda.frete` do cabeçalho é distribuído proporcionalmente entre os itens (pelo valor líquido de cada linha); o resíduo de arredondamento vai no último item.
 - Produto não localizado → `{ "success": false, "message": "Produto nao encontrado: <p_id>" }`
 - **Validação de saldo:** se a loja não permite venda com estoque negativo, a rota rejeita quando algum produto não tem saldo suficiente, retornando `{ "success": false, "message": "Produto sem saldo suficiente", "produtos_sem_saldo": [{ "produto_id": 123, "produto": "NIMESULIDA 100MG", "saldo": 3, "solicitado": 10 }] }`.
 - Idempotência: se `pedido` já existir em outra nota, retorna a nota existente sem erro (`success: true`) — incluindo o `numero_nota_fiscal` já atribuído.
