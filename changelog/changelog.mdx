@@ -6,9 +6,11 @@ description: "Histórico de mudanças da API SADI voltado ao integrador."
 Mudanças relevantes para quem integra com a API SADI — endpoints novos, campos novos e alterações de comportamento. Do mais recente para o mais antigo.
 
 <Update label="2026-09-23">
-  **ListaProduto: filtros combináveis**
+  **ListaProduto: filtros combináveis e kits só ativos**
 
-  - **Novo:** `ListaProduto`: novo parâmetro `filtros` (array) que combina por AND. Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `["promocao","tabloide"]`.
+  - **Novo:** `ListaProduto`: novo parâmetro `filtros` (array) que combina por AND. Tokens: `tabloide` (vigente), `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit` (kit ativo). Ex: `["promocao","tabloide"]`.
+  - **Alterado:** `ListaProduto`: o array `kits` só acompanha a resposta **sem `filtros`** (listagem normal) ou quando `filtros` inclui `em_kit`; com outros filtros vem vazio (`kits: []`).
+  - **Correção:** `ListaProduto`: o array `kits` passa a trazer **somente kits ativos** (`kit_ativo = 'S'`) — antes incluía kits inativos.
 </Update>
 
 <Update label="2026-09-23">

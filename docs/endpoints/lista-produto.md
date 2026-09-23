@@ -2,7 +2,7 @@
 
 Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtro de saldo.
 
-A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — listar produtos já traz tudo. Se quiser **somente os kits**, envie `"apenas_kits": true`.
+Na listagem normal (sem `filtros`) a resposta **inclui também os `kits`** ativos cadastrados, com seus itens — listar produtos já traz tudo. Se quiser **somente os kits**, envie `"apenas_kits": true`.
 
 ### Filtros combináveis (`filtros`)
 
@@ -10,13 +10,15 @@ Envie um array com um ou mais tokens no campo `filtros`. Eles **combinam por AND
 
 | Token | Retorna apenas produtos… |
 | --- | --- |
-| `tabloide` | vinculados a um tabloide |
+| `tabloide` | vinculados a um tabloide **vigente** |
 | `promocao` | com promoção vigente |
 | `desconto_escalonado` | com faixas de desconto por quantidade |
 | `leve_pague` | com promoção *leve X pague Y* |
-| `em_kit` | que compõem algum kit (diferente de `apenas_kits`, que retorna os kits em si) |
+| `em_kit` | que compõem algum kit **ativo** (diferente de `apenas_kits`, que retorna os kits em si) |
 
 Exemplo — só o que está em promoção **e** em tabloide: `"filtros": ["promocao", "tabloide"]`.
+
+**Array `kits` com `filtros`:** o array `kits` só acompanha a resposta quando **não** há `filtros` (listagem normal) **ou** quando `filtros` inclui `em_kit`. Com outros filtros de produto (ex.: só `tabloide`/`promocao`) o array vem **vazio** (`kits: []`, `total_kits: 0`) — o filtro é sobre produtos, e kit é outra tabela com regra própria.
 
 **Método:** `POST`  
 **URL:** `https://sadi.digifarma.com.br/api/ListaProduto`
@@ -171,8 +173,8 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 | --- | --- | --- |
 | `total_registros` | integer | Total de **produtos** que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |
 | `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |
-| `total_kits` | integer | Total de **kits** cadastrados. **Sempre presente.** |
-| `kits` | array | Todos os kits do cadastro, com seus itens. **Sempre presente** na listagem de produtos (não é paginado). Ver estrutura abaixo. |
+| `total_kits` | integer | Quantidade de **kits ativos** no array `kits`. `0` quando os kits não acompanham (ver regra abaixo). |
+| `kits` | array | Kits **ativos** do cadastro, com seus itens (não paginado). Presente **sem `filtros`** ou quando `filtros` inclui `em_kit`; caso contrário vem **vazio**. Ver estrutura abaixo. |
 
 ### Cada item em `produtos[]`
 
@@ -267,6 +269,7 @@ Com `"apenas_kits": true` a rota **não consulta produtos** e a raiz muda leveme
 
 ## Observações
 
-- Os `kits` **sempre acompanham** a listagem de produtos — não é preciso pedir. Use `"apenas_kits": true` apenas quando quiser **exclusivamente os kits** (sem trafegar os produtos).
-- O array `kits` **não é paginado**: traz todos os kits do cadastro em qualquer página. Já `produtos` respeita `pagina` / `tamanho_pagina`.
+- Os `kits` acompanham a listagem de produtos **na consulta normal** (sem `filtros`) — não é preciso pedir. Com `filtros`, só vêm se `em_kit` estiver entre eles. Use `"apenas_kits": true` quando quiser **exclusivamente os kits** (sem trafegar os produtos).
+- Apenas kits **ativos** são retornados no array `kits`.
+- O array `kits` **não é paginado**: quando presente, traz todos os kits ativos do cadastro em qualquer página. Já `produtos` respeita `pagina` / `tamanho_pagina`.
 - Os parâmetros `integracao` / `apenas_integracao` são **legados** e estão em desuso; não têm efeito sobre os kits.

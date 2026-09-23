@@ -79,9 +79,11 @@ HEADER_USER_AGENT: dict[str, Any] = {
 CHANGELOG: list[dict[str, Any]] = [
     {
         "data": "2026-09-23",
-        "titulo": "ListaProduto: filtros combináveis",
+        "titulo": "ListaProduto: filtros combináveis e kits só ativos",
         "itens": [
-            {"tipo": "add", "texto": "`ListaProduto`: novo parâmetro `filtros` (array) que combina por AND. Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `[\"promocao\",\"tabloide\"]`."},
+            {"tipo": "add", "texto": "`ListaProduto`: novo parâmetro `filtros` (array) que combina por AND. Tokens: `tabloide` (vigente), `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit` (kit ativo). Ex: `[\"promocao\",\"tabloide\"]`."},
+            {"tipo": "change", "texto": "`ListaProduto`: o array `kits` só acompanha a resposta **sem `filtros`** (listagem normal) ou quando `filtros` inclui `em_kit`; com outros filtros vem vazio (`kits: []`)."},
+            {"tipo": "fix", "texto": "`ListaProduto`: o array `kits` passa a trazer **somente kits ativos** (`kit_ativo = 'S'`) — antes incluía kits inativos."},
         ],
     },
     {
@@ -323,21 +325,26 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "Consulta o **catálogo de produtos** da loja. Suporta busca por código, "
             "EAN, nome ou data de atualização, com paginação, ordenação e filtro de "
             "saldo.\n\n"
-            "A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — "
-            "listar produtos já traz tudo. Se quiser **somente os kits**, envie "
-            "`\"apenas_kits\": true`.\n\n"
+            "Na listagem normal (sem `filtros`) a resposta **inclui também os `kits`** "
+            "ativos cadastrados, com seus itens — listar produtos já traz tudo. Se quiser "
+            "**somente os kits**, envie `\"apenas_kits\": true`.\n\n"
             "### Filtros combináveis (`filtros`)\n\n"
             "Envie um array com um ou mais tokens no campo `filtros`. Eles **combinam "
             "por AND** entre si e com os demais filtros (busca e `saldo_positivo`), "
             "sem afetar a paginação. Tokens desconhecidos são ignorados.\n\n"
             "| Token | Retorna apenas produtos… |\n"
             "| --- | --- |\n"
-            "| `tabloide` | vinculados a um tabloide |\n"
+            "| `tabloide` | vinculados a um tabloide **vigente** |\n"
             "| `promocao` | com promoção vigente |\n"
             "| `desconto_escalonado` | com faixas de desconto por quantidade |\n"
             "| `leve_pague` | com promoção *leve X pague Y* |\n"
-            "| `em_kit` | que compõem algum kit (diferente de `apenas_kits`, que retorna os kits em si) |\n\n"
-            "Exemplo — só o que está em promoção **e** em tabloide: `\"filtros\": [\"promocao\", \"tabloide\"]`."
+            "| `em_kit` | que compõem algum kit **ativo** (diferente de `apenas_kits`, que retorna os kits em si) |\n\n"
+            "Exemplo — só o que está em promoção **e** em tabloide: `\"filtros\": [\"promocao\", \"tabloide\"]`.\n\n"
+            "**Array `kits` com `filtros`:** o array `kits` só acompanha a resposta "
+            "quando **não** há `filtros` (listagem normal) **ou** quando `filtros` inclui "
+            "`em_kit`. Com outros filtros de produto (ex.: só `tabloide`/`promocao`) o "
+            "array vem **vazio** (`kits: []`, `total_kits: 0`) — o filtro é sobre "
+            "produtos, e kit é outra tabela com regra própria."
         ),
         "params": [
             {"campo": "tipo_consulta",    "tipo": "string",  "obrigatorio": "Sim", "default": None,          "descricao": '`"COD_INTERNO"`, `"EAN"`, `"NOME"` ou `"DATA"`'},
@@ -443,8 +450,8 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "| --- | --- | --- |\n"
             "| `total_registros` | integer | Total de **produtos** que casam com a busca, **ignorando a paginação**. Útil para calcular quantas páginas você precisa buscar. |\n"
             "| `produtos` | array | Produtos da página atual (tamanho ≤ `tamanho_pagina`) |\n"
-            "| `total_kits` | integer | Total de **kits** cadastrados. **Sempre presente.** |\n"
-            "| `kits` | array | Todos os kits do cadastro, com seus itens. **Sempre presente** na listagem de produtos (não é paginado). Ver estrutura abaixo. |\n\n"
+            "| `total_kits` | integer | Quantidade de **kits ativos** no array `kits`. `0` quando os kits não acompanham (ver regra abaixo). |\n"
+            "| `kits` | array | Kits **ativos** do cadastro, com seus itens (não paginado). Presente **sem `filtros`** ou quando `filtros` inclui `em_kit`; caso contrário vem **vazio**. Ver estrutura abaixo. |\n\n"
             "### Cada item em `produtos[]`\n\n"
             "| Campo | Tipo | Descrição |\n"
             "| --- | --- | --- |\n"
@@ -526,11 +533,13 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "`total_kits` seguem o **mesmo formato** descrito acima.\n"
         ),
         "notas": [
-            "Os `kits` **sempre acompanham** a listagem de produtos — não é preciso pedir. "
-            "Use `\"apenas_kits\": true` apenas quando quiser **exclusivamente os kits** "
-            "(sem trafegar os produtos).",
-            "O array `kits` **não é paginado**: traz todos os kits do cadastro em qualquer "
-            "página. Já `produtos` respeita `pagina` / `tamanho_pagina`.",
+            "Os `kits` acompanham a listagem de produtos **na consulta normal** (sem "
+            "`filtros`) — não é preciso pedir. Com `filtros`, só vêm se `em_kit` estiver "
+            "entre eles. Use `\"apenas_kits\": true` quando quiser **exclusivamente os "
+            "kits** (sem trafegar os produtos).",
+            "Apenas kits **ativos** são retornados no array `kits`.",
+            "O array `kits` **não é paginado**: quando presente, traz todos os kits ativos "
+            "do cadastro em qualquer página. Já `produtos` respeita `pagina` / `tamanho_pagina`.",
             "Os parâmetros `integracao` / `apenas_integracao` são **legados** e estão em "
             "desuso; não têm efeito sobre os kits.",
         ],
