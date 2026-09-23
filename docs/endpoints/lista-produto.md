@@ -4,6 +4,20 @@ Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, no
 
 A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — listar produtos já traz tudo. Se quiser **somente os kits**, envie `"apenas_kits": true`.
 
+### Filtros combináveis (`filtros`)
+
+Envie um array com um ou mais tokens no campo `filtros`. Eles **combinam por AND** entre si e com os demais filtros (busca e `saldo_positivo`), sem afetar a paginação. Tokens desconhecidos são ignorados.
+
+| Token | Retorna apenas produtos… |
+| --- | --- |
+| `tabloide` | vinculados a um tabloide |
+| `promocao` | com promoção vigente |
+| `desconto_escalonado` | com faixas de desconto por quantidade |
+| `leve_pague` | com promoção *leve X pague Y* |
+| `em_kit` | que compõem algum kit (diferente de `apenas_kits`, que retorna os kits em si) |
+
+Exemplo — só o que está em promoção **e** em tabloide: `"filtros": ["promocao", "tabloide"]`.
+
 **Método:** `POST`  
 **URL:** `https://sadi.digifarma.com.br/api/ListaProduto`
 
@@ -28,6 +42,7 @@ Envie via `form-data` com um único campo chamado **`json`** contendo o JSON aba
 | `pagina` | integer | Não | 1 | Página desejada |
 | `tamanho_pagina` | integer | Não | 20 | Registros por página |
 | `saldo_positivo` | boolean | Não | false | Se `true`, retorna apenas produtos com saldo > 0 |
+| `filtros` | array<string> | Não | [] | Lista de filtros que **combinam por AND** (todos entram junto com a busca e o `saldo_positivo`). Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `["promocao","tabloide"]`. Tokens desconhecidos são ignorados. Ver *Filtros combináveis* abaixo. |
 | `ordenar_por` | string | Não | "produto_id" | `"PRODUTO"`, `"COD_BARRAS"`, `"FABRICANTE"`, `"CATEGORIA"`, `"SALDO"`, `"PRECO_VENDA"` ou `"LASTUPDATE"` |
 | `ordem` | string | Não | "ASC" | `"ASC"` ou `"DESC"` |
 | `apenas_kits` | boolean | Não | false | Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo. |
@@ -47,6 +62,10 @@ Conteúdo do campo `json`:
     "pagina": 1,
     "tamanho_pagina": 10,
     "saldo_positivo": false,
+    "filtros": [
+      "promocao",
+      "tabloide"
+    ],
     "ordenar_por": "PRODUTO",
     "ordem": "ASC",
     "apenas_kits": false

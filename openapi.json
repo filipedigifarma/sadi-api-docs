@@ -339,7 +339,7 @@
       "post": {
         "operationId": "listaProduto",
         "summary": "ListaProduto",
-        "description": "Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtro de saldo.\n\nA resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — listar produtos já traz tudo. Se quiser **somente os kits**, envie `\"apenas_kits\": true`.",
+        "description": "Consulta o **catálogo de produtos** da loja. Suporta busca por código, EAN, nome ou data de atualização, com paginação, ordenação e filtro de saldo.\n\nA resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — listar produtos já traz tudo. Se quiser **somente os kits**, envie `\"apenas_kits\": true`.\n\n### Filtros combináveis (`filtros`)\n\nEnvie um array com um ou mais tokens no campo `filtros`. Eles **combinam por AND** entre si e com os demais filtros (busca e `saldo_positivo`), sem afetar a paginação. Tokens desconhecidos são ignorados.\n\n| Token | Retorna apenas produtos… |\n| --- | --- |\n| `tabloide` | vinculados a um tabloide |\n| `promocao` | com promoção vigente |\n| `desconto_escalonado` | com faixas de desconto por quantidade |\n| `leve_pague` | com promoção *leve X pague Y* |\n| `em_kit` | que compõem algum kit (diferente de `apenas_kits`, que retorna os kits em si) |\n\nExemplo — só o que está em promoção **e** em tabloide: `\"filtros\": [\"promocao\", \"tabloide\"]`.",
         "tags": [
           "Produto"
         ],
@@ -385,7 +385,7 @@
                 "properties": {
                   "json": {
                     "type": "object",
-                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `apenas_kits` | boolean | Não | Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo. |\n| `integracao` | string | Não | **Legado / em desuso.** Filtra produtos vinculados a uma integração. Não afeta os kits. |\n| `apenas_integracao` | boolean | Não | **Legado / em desuso.** Se `true`, retorna apenas produtos com vínculo em integração ativa. |"
+                    "description": "Payload JSON com `cnpj` e `params`. Enviado como um campo `json` dentro do `form-data`.\n\n**Parâmetros (`params`):**\n\n| Campo | Tipo | Obrigatório | Descrição |\n| --- | --- | --- | --- |\n| `tipo_consulta` | string | Sim | `\"COD_INTERNO\"`, `\"EAN\"`, `\"NOME\"` ou `\"DATA\"` |\n| `parametro` | string | Não | Valor da busca. Para `DATA` use `\"yyyy-mm-dd hh:nn:ss\"` |\n| `pagina` | integer | Não | Página desejada |\n| `tamanho_pagina` | integer | Não | Registros por página |\n| `saldo_positivo` | boolean | Não | Se `true`, retorna apenas produtos com saldo > 0 |\n| `filtros` | array<string> | Não | Lista de filtros que **combinam por AND** (todos entram junto com a busca e o `saldo_positivo`). Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `[\"promocao\",\"tabloide\"]`. Tokens desconhecidos são ignorados. Ver *Filtros combináveis* abaixo. |\n| `ordenar_por` | string | Não | `\"PRODUTO\"`, `\"COD_BARRAS\"`, `\"FABRICANTE\"`, `\"CATEGORIA\"`, `\"SALDO\"`, `\"PRECO_VENDA\"` ou `\"LASTUPDATE\"` |\n| `ordem` | string | Não | `\"ASC\"` ou `\"DESC\"` |\n| `apenas_kits` | boolean | Não | Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo. |\n| `integracao` | string | Não | **Legado / em desuso.** Filtra produtos vinculados a uma integração. Não afeta os kits. |\n| `apenas_integracao` | boolean | Não | **Legado / em desuso.** Se `true`, retorna apenas produtos com vínculo em integração ativa. |"
                   }
                 }
               },
@@ -403,6 +403,10 @@
                     "pagina": 1,
                     "tamanho_pagina": 10,
                     "saldo_positivo": false,
+                    "filtros": [
+                      "promocao",
+                      "tabloide"
+                    ],
                     "ordenar_por": "PRODUTO",
                     "ordem": "ASC",
                     "apenas_kits": false

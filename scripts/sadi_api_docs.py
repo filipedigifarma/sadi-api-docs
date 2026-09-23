@@ -79,6 +79,13 @@ HEADER_USER_AGENT: dict[str, Any] = {
 CHANGELOG: list[dict[str, Any]] = [
     {
         "data": "2026-09-23",
+        "titulo": "ListaProduto: filtros combináveis",
+        "itens": [
+            {"tipo": "add", "texto": "`ListaProduto`: novo parâmetro `filtros` (array) que combina por AND. Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `[\"promocao\",\"tabloide\"]`."},
+        ],
+    },
+    {
+        "data": "2026-09-23",
         "titulo": "ListaProduto: descrição resumida, sub-categoria e bloco fiscal",
         "itens": [
             {"tipo": "add", "texto": "`ListaProduto`: novo campo `produto_resumido` — descrição enxuta do produto (vazio se não cadastrada)."},
@@ -318,7 +325,19 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             "saldo.\n\n"
             "A resposta **sempre inclui também os `kits`** cadastrados (com seus itens) — "
             "listar produtos já traz tudo. Se quiser **somente os kits**, envie "
-            "`\"apenas_kits\": true`."
+            "`\"apenas_kits\": true`.\n\n"
+            "### Filtros combináveis (`filtros`)\n\n"
+            "Envie um array com um ou mais tokens no campo `filtros`. Eles **combinam "
+            "por AND** entre si e com os demais filtros (busca e `saldo_positivo`), "
+            "sem afetar a paginação. Tokens desconhecidos são ignorados.\n\n"
+            "| Token | Retorna apenas produtos… |\n"
+            "| --- | --- |\n"
+            "| `tabloide` | vinculados a um tabloide |\n"
+            "| `promocao` | com promoção vigente |\n"
+            "| `desconto_escalonado` | com faixas de desconto por quantidade |\n"
+            "| `leve_pague` | com promoção *leve X pague Y* |\n"
+            "| `em_kit` | que compõem algum kit (diferente de `apenas_kits`, que retorna os kits em si) |\n\n"
+            "Exemplo — só o que está em promoção **e** em tabloide: `\"filtros\": [\"promocao\", \"tabloide\"]`."
         ),
         "params": [
             {"campo": "tipo_consulta",    "tipo": "string",  "obrigatorio": "Sim", "default": None,          "descricao": '`"COD_INTERNO"`, `"EAN"`, `"NOME"` ou `"DATA"`'},
@@ -326,6 +345,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
             {"campo": "pagina",           "tipo": "integer", "obrigatorio": "Não", "default": "1",           "descricao": "Página desejada"},
             {"campo": "tamanho_pagina",   "tipo": "integer", "obrigatorio": "Não", "default": "20",          "descricao": "Registros por página"},
             {"campo": "saldo_positivo",   "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, retorna apenas produtos com saldo > 0"},
+            {"campo": "filtros",          "tipo": "array<string>", "obrigatorio": "Não", "default": "[]",   "descricao": 'Lista de filtros que **combinam por AND** (todos entram junto com a busca e o `saldo_positivo`). Tokens: `tabloide`, `promocao`, `desconto_escalonado`, `leve_pague`, `em_kit`. Ex: `["promocao","tabloide"]`. Tokens desconhecidos são ignorados. Ver *Filtros combináveis* abaixo.'},
             {"campo": "ordenar_por",      "tipo": "string",  "obrigatorio": "Não", "default": '"produto_id"', "descricao": '`"PRODUTO"`, `"COD_BARRAS"`, `"FABRICANTE"`, `"CATEGORIA"`, `"SALDO"`, `"PRECO_VENDA"` ou `"LASTUPDATE"`'},
             {"campo": "ordem",            "tipo": "string",  "obrigatorio": "Não", "default": '"ASC"',       "descricao": '`"ASC"` ou `"DESC"`'},
             {"campo": "apenas_kits",      "tipo": "boolean", "obrigatorio": "Não", "default": "false",       "descricao": "Se `true`, **não consulta produtos** e retorna **apenas os kits**. Na listagem normal os kits já vêm juntos — use isto só quando quiser exclusivamente os kits. Ver *Modo `apenas_kits`* abaixo."},
@@ -340,6 +360,7 @@ ENDPOINTS: dict[str, dict[str, Any]] = {
                 "pagina": 1,
                 "tamanho_pagina": 10,
                 "saldo_positivo": False,
+                "filtros": ["promocao", "tabloide"],
                 "ordenar_por": "PRODUTO",
                 "ordem": "ASC",
                 "apenas_kits": False,
