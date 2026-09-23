@@ -66,8 +66,10 @@ Conteúdo do campo `json`:
           "produto_id": 3906,
           "cod_barras": "7896422507967",
           "produto": "BUTILB ESCOP+DIP-G 20-MD",
+          "produto_resumido": "BUSCOPAN COMP",
           "fabricante": "MEDLEY GENERICOS",
           "categoria": "GENERICOS",
+          "sub_categoria": "ANALGESICOS",
           "apresentacao": "008455",
           "cod_tributacao": "F",
           "localizacao": "",
@@ -89,6 +91,16 @@ Conteúdo do campo `json`:
             "leve": 6,
             "pague": 5,
             "tipo_preco": "V"
+          },
+          "fiscal": {
+            "ncm": "30049099",
+            "cest": "1300201",
+            "unidade": "UND",
+            "cst_pis": "04",
+            "cst_cofins": "04",
+            "cod_tributacao": "F",
+            "registro_ms": "1781709440037",
+            "info_adicional": ""
           },
           "desconto_escalonado": [
             {
@@ -150,10 +162,12 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 | `produto_id` | integer | ID interno do produto no SADI |
 | `cod_barras` | string | EAN/código de barras. Vazio se não cadastrado. |
 | `produto` | string | Nome/descrição do produto |
+| `produto_resumido` | string | Descrição enxuta/reduzida do produto. Vazio se não cadastrada. |
 | `fabricante` | string | Fabricante ou laboratório |
 | `categoria` | string | Categoria comercial (ex: `GENERICOS`, `SIMILARES`, `ETICOS`, `PERFUMARIA`) |
+| `sub_categoria` | string | Sub-categoria comercial do produto. Vazia se não cadastrada. |
 | `apresentacao` | string | Código de apresentação/embalagem no cadastro |
-| `cod_tributacao` | string | Código de tributação fiscal (ex: `F`, `T`, `I`) |
+| `cod_tributacao` | string | Código de tributação fiscal (ex: `F`, `T`, `I`). Também disponível dentro de `fiscal`. |
 | `localizacao` | string | Localização física do produto na loja (gôndola/prateleira). Vazio se não cadastrada. |
 | `localizacao_id` | integer \| null | ID da localização, se houver |
 | `localizacao_descricao` | string \| null | Descrição textual da localização |
@@ -170,7 +184,23 @@ A resposta é sempre um objeto no formato `{ "result": [ { ... } ] }` — o arra
 | `padrao_comissao` | number | Percentual padrão de comissão do produto |
 | `valor_ult_compra` | number | Custo da última compra do produto (referência de custo) |
 | `leve_x_pague_y` | object \| null | Promoção **leve X pague Y**, se aplicável. Ver estrutura abaixo. |
+| `fiscal` | object | Dados fiscais do produto. **Sempre presente.** Ver estrutura abaixo. |
 | `desconto_escalonado` | array | Faixas de desconto por quantidade. Vazio se não aplicável. |
+
+### `fiscal`
+
+Dados fiscais do cadastro do produto. Campos ausentes no cadastro vêm como string vazia (`""`).
+
+| Campo | Tipo | Descrição |
+| --- | --- | --- |
+| `ncm` | string | NCM (Nomenclatura Comum do Mercosul) do produto |
+| `cest` | string | CEST (Código Especificador da Substituição Tributária). Vazio se não aplicável. |
+| `unidade` | string | Unidade de medida do produto (ex: `UND`, `CX`, `FR`) |
+| `cst_pis` | string | CST do PIS (ex: `01`, `04`, `06`) |
+| `cst_cofins` | string | CST do COFINS (ex: `01`, `04`, `06`) |
+| `cod_tributacao` | string | Código de tributação (CSOSN/CST de ICMS conforme o regime). Mesmo valor do `cod_tributacao` da raiz. |
+| `registro_ms` | string | Registro no Ministério da Saúde / ANVISA. Vazio se não aplicável. |
+| `info_adicional` | string | Informações adicionais/observação fiscal do produto. Vazio se não cadastrada. |
 
 ### `leve_x_pague_y` (quando não é `null`)
 
