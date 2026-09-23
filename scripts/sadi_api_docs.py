@@ -52,6 +52,81 @@ HEADER_USER_AGENT: dict[str, Any] = {
 }
 
 
+# ======================================================================
+# CHANGELOG — histórico datado de mudanças da API (voltado ao integrador).
+#
+# Fonte única do changelog público. Consumido por scripts/gerar_changelog.py,
+# que emite changelog/changelog.mdx (timeline <Update> do Mintlify) e registra
+# a aba "Changelog" no mint.json.
+#
+# Regras de curadoria:
+#   - Só entra o que o INTEGRADOR percebe: endpoint novo, campo novo, mudança
+#     de comportamento/contrato, correção observável. NÃO entra encanamento
+#     interno de portal (Fern/Mintlify, favicon, rebuild, etc.).
+#   - Ordem: mais recente no TOPO (o gerador também ordena por data desc).
+#   - `data` em ISO (yyyy-mm-dd). `tipo` de cada item: "add" | "change" | "fix".
+#
+# Formato de cada entrada:
+#   {
+#     "data": "2026-09-23",
+#     "titulo": "Resumo curto da entrada",
+#     "itens": [
+#       {"tipo": "add",    "texto": "markdown do que mudou"},
+#       {"tipo": "change", "texto": "..."},
+#     ],
+#   }
+# ======================================================================
+CHANGELOG: list[dict[str, Any]] = [
+    {
+        "data": "2026-09-23",
+        "titulo": "ListaProduto: descrição resumida, sub-categoria e bloco fiscal",
+        "itens": [
+            {"tipo": "add", "texto": "`ListaProduto`: novo campo `produto_resumido` — descrição enxuta do produto (vazio se não cadastrada)."},
+            {"tipo": "add", "texto": "`ListaProduto`: novo campo `sub_categoria` — nome da sub-categoria comercial do produto."},
+            {"tipo": "add", "texto": "`ListaProduto`: novo objeto `fiscal` com `ncm`, `cest`, `unidade`, `cst_pis`, `cst_cofins`, `cod_tributacao`, `registro_ms` e `info_adicional`."},
+        ],
+    },
+    {
+        "data": "2026-08-31",
+        "titulo": "InserirNotaFiscal: mais dados de identificação e pagamento",
+        "itens": [
+            {"tipo": "add", "texto": "`InserirNotaFiscal`: Inscrição Estadual aceita por CPF/CNPJ, campo `v_id`, forma de pagamento e rateio de frete documentados."},
+        ],
+    },
+    {
+        "data": "2026-08-18",
+        "titulo": "ListaProduto: kits e parâmetro apenas_kits; User-Agent recomendado",
+        "itens": [
+            {"tipo": "change", "texto": "`ListaProduto`: a listagem normal **sempre** inclui os `kits` cadastrados. Para retornar **somente** kits, use o novo parâmetro `apenas_kits: true`."},
+            {"tipo": "add", "texto": "Passa a ser **boa prática obrigatória** enviar o header `User-Agent` com o nome da sua empresa (ex: `MinhaEmpresa/1.0`) em todas as rotas."},
+        ],
+    },
+    {
+        "data": "2026-07-24",
+        "titulo": "Novos endpoints de Nota Fiscal",
+        "itens": [
+            {"tipo": "add", "texto": "Novos endpoints: `InserirNotaFiscal` e `CancelarNotaFiscal`."},
+        ],
+    },
+    {
+        "data": "2026-07-23",
+        "titulo": "Novo endpoint CancelarPreVenda",
+        "itens": [
+            {"tipo": "add", "texto": "Novo endpoint: `CancelarPreVenda` — cancelamento de pré-venda."},
+        ],
+    },
+    {
+        "data": "2026-07-22",
+        "titulo": "Lançamento da documentação pública da API SADI",
+        "itens": [
+            {"tipo": "add", "texto": "Publicação inicial: `GetToken`, `GetDadosLoja`, `ListaCliente`, `ListaProduto`, `InserirPreVenda`, `ListaVendas`, `GetStatusVenda`, `Ping` e `SetSenha`."},
+            {"tipo": "add", "texto": "`SetSenha`: camada **opcional** de autenticação por CNPJ, aplicada **opt-in por chamada** (o header `x-digifarma-senha` só é validado quando enviado)."},
+            {"tipo": "fix", "texto": "`ListaProduto`: `tipo_preco` de `leve_x_pague_y` é `V` (preço de venda) ou `P` (preço de promoção)."},
+        ],
+    },
+]
+
+
 # Cada chave é o nome do endpoint (tem que bater com o `name` do item no Postman collection).
 ENDPOINTS: dict[str, dict[str, Any]] = {
 

@@ -25,6 +25,10 @@
     {
       "name": "API Reference",
       "url": "api-reference"
+    },
+    {
+      "name": "Changelog",
+      "url": "changelog"
     }
   ],
   "navigation": [
@@ -83,6 +87,12 @@
             "api-reference/endpoints/set-senha"
           ]
         }
+      ]
+    },
+    {
+      "group": "Changelog",
+      "pages": [
+        "changelog/changelog"
       ]
     }
   ],
